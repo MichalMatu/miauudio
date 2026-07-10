@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useState } from 'react';
-import { IoCopyOutline, IoCheckmark } from 'react-icons/io5/index';
+import { IoCopyOutline, IoCheckmark } from 'react-icons/io5';
 
 import { Modal } from '@/components/modal';
 
@@ -39,12 +39,11 @@ export function ShareLinkModal({ onClose, show }: ShareLinkModalProps) {
   }, [selected]);
 
   const url = useMemo(() => {
-    if (!isMounted)
-      return `https://moodist.app/?share=${encodeURIComponent(string)}`;
+    const path = `/?share=${encodeURIComponent(string)}`;
 
-    return `${window.location.protocol}//${
-      window.location.host
-    }/?share=${encodeURIComponent(string)}`;
+    if (!isMounted) return path;
+
+    return new URL(path, window.location.origin).toString();
   }, [string, isMounted]);
 
   useEffect(() => setIsMounted(true), []);
@@ -58,7 +57,7 @@ export function ShareLinkModal({ onClose, show }: ShareLinkModalProps) {
       </p>
       <div className={styles.inputWrapper}>
         <input readOnly type="text" value={url} />
-        <button onClick={() => copy(url)}>
+        <button aria-label="Copy share link" onClick={() => copy(url)}>
           {copying ? <IoCheckmark /> : <IoCopyOutline />}
         </button>
       </div>

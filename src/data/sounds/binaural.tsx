@@ -1,5 +1,5 @@
-import { TbWaveSine } from 'react-icons/tb/index';
-import { BsSoundwave } from 'react-icons/bs/index';
+import { TbWaveSine } from 'react-icons/tb';
+import { BsSoundwave } from 'react-icons/bs';
 
 import type { Category } from '../types';
 

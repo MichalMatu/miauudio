@@ -1,7 +1,5 @@
 export { Shuffle as ShuffleItem } from './shuffle';
 export { Share as ShareItem } from './share';
-export { Donate as DonateItem } from './donate';
-export { Source as SourceItem } from './source';
 export { Settings as SettingsItem } from './settings';
 export { Presets as PresetsItem } from './presets';
 export { Shortcuts as ShortcutsItem } from './shortcuts';

@@ -26,7 +26,7 @@ export const useSettingsStore = create<SettingsStore>()(
     {
       merge: (persisted, current) =>
         merge(current, persisted as Partial<SettingsStore>),
-      name: 'moodist-settings',
+      name: 'miauudio-settings',
       partialize: state => ({
         alarmVolume: state.alarmVolume,
         globalVolume: state.globalVolume,

@@ -1,4 +1,4 @@
-import { MdNotes } from 'react-icons/md/index';
+import { MdNotes } from 'react-icons/md';
 
 import { Item } from '../item';
 

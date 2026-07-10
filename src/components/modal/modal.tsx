@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { IoClose } from 'react-icons/io5/index';
+import { IoClose } from 'react-icons/io5';
 import FocusTrap from 'focus-trap-react';
 
 import { Portal } from '@/components/portal';
@@ -69,7 +69,7 @@ export function Modal({
 
   const content = (
     <FocusTrap active={show}>
-      <div>
+      <div data-app-layer={show ? 'open' : undefined}>
         <motion.div
           {...animationProps}
           className={styles.overlay}
@@ -85,7 +85,11 @@ export function Modal({
             transition={{ duration: TRANSITION_DURATION / 1000 }}
             variants={variants.modal}
           >
-            <button className={styles.close} onClick={onClose}>
+            <button
+              aria-label="Close dialog"
+              className={styles.close}
+              onClick={onClose}
+            >
               <IoClose />
             </button>
             {children}

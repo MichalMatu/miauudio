@@ -1,8 +1,8 @@
 import { useRef, useEffect } from 'react';
-import { BiTrash } from 'react-icons/bi/index';
-import { LuCopy, LuDownload } from 'react-icons/lu/index';
-import { FaCheck } from 'react-icons/fa6/index';
-import { FaUndo } from 'react-icons/fa/index';
+import { BiTrash } from 'react-icons/bi';
+import { LuCopy, LuDownload } from 'react-icons/lu';
+import { FaCheck } from 'react-icons/fa6';
+import { FaUndo } from 'react-icons/fa';
 
 import { Modal } from '@/components/modal';
 import { Button } from './button';

@@ -2,19 +2,19 @@ import {
   BiSolidCoffeeAlt,
   BiSolidPlaneAlt,
   BiSolidDryer,
-} from 'react-icons/bi/index';
-import { FaChurch, FaSubway, FaShoppingBasket } from 'react-icons/fa/index';
-import { TbScubaMask, TbBeerFilled } from 'react-icons/tb/index';
-import { GiVillage, GiCarousel } from 'react-icons/gi/index';
+} from 'react-icons/bi';
+import { FaChurch, FaSubway, FaShoppingBasket } from 'react-icons/fa';
+import { TbScubaMask, TbBeerFilled } from 'react-icons/tb';
+import { GiVillage, GiCarousel } from 'react-icons/gi';
 import {
   MdTempleBuddhist,
   MdConstruction,
   MdLocationPin,
-} from 'react-icons/md/index';
-import { HiOfficeBuilding } from 'react-icons/hi/index';
-import { AiFillExperiment } from 'react-icons/ai/index';
-import { IoRestaurant } from 'react-icons/io5/index';
-import { FaBookOpen } from 'react-icons/fa6/index';
+} from 'react-icons/md';
+import { HiOfficeBuilding } from 'react-icons/hi';
+import { AiFillExperiment } from 'react-icons/ai';
+import { IoRestaurant } from 'react-icons/io5';
+import { FaBookOpen } from 'react-icons/fa6';
 
 import type { Category } from '../types';
 

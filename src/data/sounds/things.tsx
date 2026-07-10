@@ -2,15 +2,15 @@ import {
   GiWindchimes,
   GiFilmProjector,
   GiWashingMachine,
-} from 'react-icons/gi/index';
-import { BsFillKeyboardFill } from 'react-icons/bs/index';
-import { FaKeyboard, FaClock, FaFan } from 'react-icons/fa/index';
-import { MdSmartToy, MdWaterDrop, MdRadio } from 'react-icons/md/index';
-import { TbBowlFilled, TbWiper } from 'react-icons/tb/index';
-import { RiFilePaper2Fill, RiBubbleChartFill } from 'react-icons/ri/index';
-import { BiSolidDryer } from 'react-icons/bi/index';
-import { IoIosRadio } from 'react-icons/io/index';
-import { PiVinylRecord } from 'react-icons/pi/index';
+} from 'react-icons/gi';
+import { BsFillKeyboardFill } from 'react-icons/bs';
+import { FaKeyboard, FaClock, FaFan } from 'react-icons/fa';
+import { MdSmartToy, MdWaterDrop, MdRadio } from 'react-icons/md';
+import { TbBowlFilled, TbWiper } from 'react-icons/tb';
+import { RiFilePaper2Fill, RiBubbleChartFill } from 'react-icons/ri';
+import { BiSolidDryer } from 'react-icons/bi';
+import { IoIosRadio } from 'react-icons/io';
+import { PiVinylRecord } from 'react-icons/pi';
 
 import type { Category } from '../types';
 

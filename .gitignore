@@ -14,8 +14,17 @@ yarn-error.log*
 pnpm-debug.log*
 
 # environment variables
-.env
-.env.production
+.env*
+!.env.example
+
+# test output
+coverage/
+
+# private licensing evidence
+private/licenses/
+
+# IDE metadata
+.idea/
 
 # macOS-specific files
 .DS_Store

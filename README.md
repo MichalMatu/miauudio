@@ -1,80 +1,111 @@
-<div align="center">
-  <img src="/assets/banner.png" alt="Moodist Logo Banner" />
-  <h2>Moodist 🌲</h2>
-  <p>Ambient sounds for focus and calm.</p>
-  <a href="https://moodist.mvze.net">Visit <strong>Moodist</strong></a> | <a href="https://buymeacoffee.com/remvze">Buy Me a Coffee</a>
-  <br/><br/>
-  <div>
-    <a href="https://gitviews.com/">
-      <img src="https://gitviews.com/repo/remvze/moodist.svg" alt="Repo Views" />
-    </a>
-  </div>
-</div>
+# Miauudio
 
----
+Miauudio is an Android-first ambient sound mixer for focus, rest, and sleep.
+It is currently an early prototype built with Astro, React, Howler, Zustand,
+and Capacitor.
 
-## Features
+## Project status
 
-- 84 curated ambient sounds you can layer into custom soundscapes.
-- Smooth fade transitions on play/stop and sleep timer shutdown.
-- Shareable mixes via URL with one-click import.
-- Presets to save, rename, delete, and instantly reapply mixes.
-- Built-in binaural beat and isochronic tone generators.
-- Built-in breathing exercise, Pomodoro, countdown, todo, and notepad tools.
-- Installable PWA with offline caching.
-- Open-source and self-hostable with Docker.
-- And much more!
+The web application and Android debug build work. The Android wrapper has its
+own build target, adaptive icon, splash screen, safe-area handling, and system
+Back-button integration.
 
-## Self-Hosting
+Before a public or paid release, the project still needs:
 
-### 1. Run with Docker
+- reliable playback while the screen is locked or the app is backgrounded;
+- original branding assets;
+- a release-cleared sound library with per-file license records;
+- release signing, store configuration, and long-running device tests.
 
-```bash
-docker run -d \
-  --name moodist \
-  -p 8080:8080 \
-  ghcr.io/remvze/moodist:latest
-```
+See [the roadmap](docs/ROADMAP.md) for the current priorities.
 
-The open:
+## Requirements
 
-```
-http://localhost:8080
-```
+- Node.js 22.12 or newer;
+- pnpm 11 or newer;
+- JDK 21;
+- Android SDK 36 for Android development;
+- Android device or emulator running API 24 or newer.
 
-### 2. Run with Docker Compose
+## Development
 
-A `docker-compose.yml` is included at the project root.
-
-Run:
+Install dependencies and start the web development server:
 
 ```bash
-docker compose up -d
+pnpm install
+pnpm dev
 ```
 
-Then open:
+Create the production web build:
 
+```bash
+pnpm build
 ```
-http://localhost:8080
+
+Run the web/PWA build in a local container:
+
+```bash
+docker compose up --build
 ```
 
-## Contributing
+It will be available at `http://localhost:8080`.
 
-Please check [CONTRIBUTING.md](CONTRIBUTING.md) file.
+Build, synchronize, and run the Android app on a connected device:
 
-## Support Moodist
+```bash
+pnpm android:run
+```
 
-Please give a star if you liked this project.
+Create a debug APK without opening Android Studio:
 
-You can also [Buy Me a Coffee](https://buymeacoffee.com/remvze) to help me maintain Moodist.
+```bash
+pnpm android:apk
+```
 
-## License
+The APK is written to:
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+```text
+android/app/build/outputs/apk/debug/app-debug.apk
+```
 
-### Third-Party Assets
+More details are available in [Android development](docs/ANDROID.md).
 
-Some sounds used in this project are sourced from third-party providers and **are subject to different licenses**:
+## Useful commands
 
-- Sounds licensed under the **Pixabay Content License**: [Pixabay Content License](https://pixabay.com/service/license-summary/)
-- Sounds licensed under **CC0**: [Creative Commons Zero License](https://creativecommons.org/publicdomain/zero/1.0/)
+| Command | Purpose |
+| --- | --- |
+| `pnpm check` | Run the Biome formatter and linter checks. |
+| `pnpm typecheck` | Validate TypeScript types. |
+| `pnpm build` | Build the web/PWA target. |
+| `pnpm build:native` | Build web assets for the native shell without PWA runtime. |
+| `pnpm android:sync` | Build the native target and synchronize Capacitor. |
+| `pnpm android:run` | Synchronize, build, install, and launch Android. |
+| `pnpm android:apk` | Produce the Android debug APK. |
+| `pnpm android:assets` | Regenerate Android icons and splash screens. |
+
+## Repository layout
+
+```text
+android/                 Android/Capacitor project
+docs/                    Development notes and roadmap
+public/                  Static assets and the current sound library
+src/                     Astro and React application
+capacitor.config.ts      Native application configuration
+AUDIO_LICENSES.md        Audio license status and per-file record template
+THIRD_PARTY_NOTICES.md   Upstream attribution and third-party notices
+```
+
+Generated builds, copied web assets, local SDK configuration, signing keys,
+and APK/AAB files are intentionally ignored by Git.
+
+## Origin and licensing
+
+Miauudio is derived from
+[Moodist](https://github.com/remvze/moodist) by MAZE/remvze, starting from
+upstream commit `5916088`. Moodist-derived code is used under the MIT License.
+The original copyright and license notice are preserved in [LICENSE](LICENSE).
+
+The current logo and bundled sounds originate from the prototype's Moodist
+base and are not approved for a commercial Miauudio release. See
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and
+[AUDIO_LICENSES.md](AUDIO_LICENSES.md).

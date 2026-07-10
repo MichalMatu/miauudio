@@ -206,7 +206,7 @@ export const useSoundStore = create<SoundStore>()(
           // @ts-expect-error
           persisted,
         ),
-      name: 'moodist-sounds',
+      name: 'miauudio-sounds',
       partialize: state => ({
         sounds: state.sounds,
       }),

@@ -83,7 +83,7 @@ export const useTodoStore = create<TodoStore>()(
       merge: (persisted, current) =>
         merge(current, persisted as Partial<TodoStore>),
 
-      name: 'moodist-todos',
+      name: 'miauudio-todos',
       partialize: state => ({ todos: state.todos }),
       skipHydration: true,
       storage: createJSONStorage(() => localStorage),

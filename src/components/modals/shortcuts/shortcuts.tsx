@@ -1,6 +1,22 @@
 import { Modal } from '@/components/modal';
+import { IS_NATIVE_APP } from '@/constants/app';
 
 import styles from './shortcuts.module.css';
+
+const SHORTCUTS = [
+  { keys: ['Shift', 'H'], label: 'Shortcuts List' },
+  { keys: ['Shift', 'Alt', 'P'], label: 'Presets' },
+  { keys: ['Shift', 'S'], label: 'Share Sounds', webOnly: true },
+  { keys: ['Shift', 'Alt', 'T'], label: 'Sleep Timer' },
+  { keys: ['Shift', 'C'], label: 'Countdown Timer' },
+  { keys: ['Shift', 'P'], label: 'Pomodoro' },
+  { keys: ['Shift', 'N'], label: 'Notepad' },
+  { keys: ['Shift', 'G'], label: 'Settings' },
+  { keys: ['Shift', 'T'], label: 'Todo Checklist' },
+  { keys: ['Shift', 'B'], label: 'Breathing Exercise' },
+  { keys: ['Shift', 'Space'], label: 'Toggle Play' },
+  { keys: ['Shift', 'R'], label: 'Unselect All Sounds' },
+];
 
 interface ShortcutsModalProps {
   onClose: () => void;
@@ -8,56 +24,9 @@ interface ShortcutsModalProps {
 }
 
 export function ShortcutsModal({ onClose, show }: ShortcutsModalProps) {
-  const shortcuts = [
-    {
-      keys: ['Shift', 'H'],
-      label: 'Shortcuts List',
-    },
-    {
-      keys: ['Shift', 'Alt', 'P'],
-      label: 'Presets',
-    },
-    {
-      keys: ['Shift', 'S'],
-      label: 'Share Sounds',
-    },
-    {
-      keys: ['Shift', 'Alt', 'T'],
-      label: 'Sleep Timer',
-    },
-    {
-      keys: ['Shift', 'C'],
-      label: 'Countdown Timer',
-    },
-    {
-      keys: ['Shift', 'P'],
-      label: 'Pomodoro',
-    },
-    {
-      keys: ['Shift', 'N'],
-      label: 'Notepad',
-    },
-    {
-      keys: ['Shift', 'G'],
-      label: 'Settings',
-    },
-    {
-      keys: ['Shift', 'T'],
-      label: 'Todo Checklist',
-    },
-    {
-      keys: ['Shift', 'B'],
-      label: 'Breathing Exercise',
-    },
-    {
-      keys: ['Shift', 'Space'],
-      label: 'Toggle Play',
-    },
-    {
-      keys: ['Shift', 'R'],
-      label: 'Unselect All Sounds',
-    },
-  ];
+  const shortcuts = SHORTCUTS.filter(
+    shortcut => !IS_NATIVE_APP || !shortcut.webOnly,
+  );
 
   return (
     <Modal show={show} onClose={onClose}>

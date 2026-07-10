@@ -1,4 +1,4 @@
-import { IoShareSocialSharp } from 'react-icons/io5/index';
+import { IoShareSocialSharp } from 'react-icons/io5';
 
 import { Item } from '../item';
 

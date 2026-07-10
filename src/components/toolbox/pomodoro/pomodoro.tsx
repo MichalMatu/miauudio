@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { FaUndo, FaPlay, FaPause } from 'react-icons/fa/index';
-import { IoMdSettings } from 'react-icons/io/index';
+import { FaUndo, FaPlay, FaPause } from 'react-icons/fa';
+import { IoMdSettings } from 'react-icons/io';
 
 import { Modal } from '@/components/modal';
 import { Button } from '../generics/button';
@@ -46,7 +46,7 @@ export function Pomodoro({ onClose, open, show }: PomodoroProps) {
   );
 
   const [times, setTimes] = useLocalStorage<Record<string, number>>(
-    'moodist-pomodoro-setting',
+    'miauudio-pomodoro-setting',
     defaultTimes,
   );
 

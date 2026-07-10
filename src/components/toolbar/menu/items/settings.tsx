@@ -1,4 +1,4 @@
-import { IoSettingsSharp } from 'react-icons/io5/index';
+import { IoSettingsSharp } from 'react-icons/io5';
 
 import { Item } from '../item';
 

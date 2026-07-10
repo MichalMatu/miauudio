@@ -1,4 +1,4 @@
-import { BiShuffle } from 'react-icons/bi/index';
+import { BiShuffle } from 'react-icons/bi';
 
 import { useSoundStore } from '@/stores/sound';
 

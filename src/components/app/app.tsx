@@ -1,6 +1,6 @@
 import { useMemo, useEffect } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { BiSolidHeart } from 'react-icons/bi/index';
+import { BiSolidHeart } from 'react-icons/bi';
 import { Howler } from 'howler';
 
 import { useSoundStore } from '@/stores/sound';
@@ -13,6 +13,7 @@ import { SharedModal } from '@/components/modals/shared';
 import { Toolbar } from '@/components/toolbar';
 import { SnackbarProvider } from '@/contexts/snackbar';
 import { MediaControls } from '@/components/media-controls';
+import { NativeBackHandler } from './native-back-handler';
 
 import { sounds } from '@/data/sounds';
 import { FADE_OUT } from '@/constants/events';
@@ -88,6 +89,7 @@ export function App() {
 
   return (
     <SnackbarProvider>
+      <NativeBackHandler />
       <StoreConsumer>
         <MediaControls />
         <Container>

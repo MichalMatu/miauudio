@@ -42,7 +42,7 @@ export const usePresetStore = create<PresetStore>()(
         merge(current, persisted as Partial<PresetStore>),
 
       migrate,
-      name: 'moodist-presets',
+      name: 'miauudio-presets',
       partialize: state => ({ presets: state.presets }),
       skipHydration: true,
       storage: createJSONStorage(() => localStorage),

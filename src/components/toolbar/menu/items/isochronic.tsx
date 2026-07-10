@@ -1,4 +1,4 @@
-import { TbWaveSine } from 'react-icons/tb/index';
+import { TbWaveSine } from 'react-icons/tb';
 
 import { Item } from '../item';
 

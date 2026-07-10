@@ -9,15 +9,9 @@ import {
   GiChicken,
   GiCow,
   GiSheep,
-} from 'react-icons/gi/index';
-import {
-  FaDog,
-  FaFrog,
-  FaHorseHead,
-  FaCat,
-  FaCrow,
-} from 'react-icons/fa/index';
-import { PiBirdFill, PiDogBold } from 'react-icons/pi/index';
+} from 'react-icons/gi';
+import { FaDog, FaFrog, FaHorseHead, FaCat, FaCrow } from 'react-icons/fa';
+import { PiBirdFill, PiDogBold } from 'react-icons/pi';
 
 import type { Category } from '../types';
 

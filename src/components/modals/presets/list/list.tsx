@@ -1,4 +1,4 @@
-import { FaPlay, FaRegTrashAlt } from 'react-icons/fa/index';
+import { FaPlay, FaRegTrashAlt } from 'react-icons/fa';
 
 import styles from './list.module.css';
 

@@ -1,4 +1,4 @@
-import { BiHeart, BiSolidHeart } from 'react-icons/bi/index';
+import { BiHeart, BiSolidHeart } from 'react-icons/bi';
 import { AnimatePresence, motion } from 'motion/react';
 
 import { useSoundStore } from '@/stores/sound';

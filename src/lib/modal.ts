@@ -8,6 +8,19 @@ export function closeModals() {
   dispatch(CLOSE_MODALS);
 }
 
+/** Requests the currently open modal or menu layer to close. */
+export function closeTopLayer() {
+  const layer = document.querySelector('[data-app-layer="open"]');
+
+  if (!layer) return false;
+
+  document.dispatchEvent(
+    new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }),
+  );
+
+  return true;
+}
+
 /**
  * Subscribes a listener function to the CLOSE_MODALS event.
  *

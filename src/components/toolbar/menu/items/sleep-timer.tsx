@@ -1,4 +1,4 @@
-import { IoMoonSharp } from 'react-icons/io5/index';
+import { IoMoonSharp } from 'react-icons/io5';
 
 import { useSleepTimerStore } from '@/stores/sleep-timer';
 import { Item } from '../item';

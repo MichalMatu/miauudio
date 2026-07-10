@@ -1,4 +1,4 @@
-import { FaHeadphonesAlt } from 'react-icons/fa/index';
+import { FaHeadphonesAlt } from 'react-icons/fa';
 
 import { Item } from '../item';
 

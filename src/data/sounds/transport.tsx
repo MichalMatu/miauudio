@@ -1,7 +1,7 @@
-import { BiSolidTrain, BiSolidPlaneAlt } from 'react-icons/bi/index';
-import { FaCarSide } from 'react-icons/fa/index';
-import { GiSubmarine, GiSailboat } from 'react-icons/gi/index';
-import { TbSailboat } from 'react-icons/tb/index';
+import { BiSolidTrain, BiSolidPlaneAlt } from 'react-icons/bi';
+import { FaCarSide } from 'react-icons/fa';
+import { GiSubmarine, GiSailboat } from 'react-icons/gi';
+import { TbSailboat } from 'react-icons/tb';
 
 import type { Category } from '../types';
 

@@ -1,9 +1,12 @@
 .wrapper {
   position: fixed;
-  bottom: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   left: 0;
   z-index: 100;
+  box-sizing: border-box;
   width: 100%;
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
   pointer-events: none;
 
   & .snackbar {

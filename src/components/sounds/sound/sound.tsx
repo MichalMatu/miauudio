@@ -1,5 +1,5 @@
 import { useCallback, useEffect, forwardRef, useMemo } from 'react';
-import { ImSpinner9 } from 'react-icons/im/index';
+import { ImSpinner9 } from 'react-icons/im';
 
 import { Range } from './range';
 import { Favorite } from './favorite';
