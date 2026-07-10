@@ -5,6 +5,8 @@ import { Modal } from '@/components/modal';
 
 import { useCopy } from '@/hooks/use-copy';
 import { useSoundStore } from '@/stores/sound';
+import { useGeneratorStore } from '@/stores/generator';
+import { captureMixSnapshot, createSharedMixPayload } from '@/lib/mix-snapshot';
 
 import styles from './share-link.module.css';
 
@@ -16,27 +18,14 @@ interface ShareLinkModalProps {
 export function ShareLinkModal({ onClose, show }: ShareLinkModalProps) {
   const [isMounted, setIsMounted] = useState(false);
   const sounds = useSoundStore(state => state.sounds);
+  const generatorSettings = useGeneratorStore(state => state.settings);
   const { copy, copying } = useCopy();
 
-  const selected = useMemo(() => {
-    return Object.keys(sounds)
-      .map(sound => ({
-        id: sound,
-        isSelected: sounds[sound].isSelected,
-        volume: sounds[sound].volume.toFixed(2),
-      }))
-      .filter(sound => sound.isSelected);
-  }, [sounds, JSON.stringify(sounds)]); // eslint-disable-line
-
   const string = useMemo(() => {
-    const object: Record<string, number> = {};
+    const snapshot = captureMixSnapshot();
 
-    selected.forEach(sound => {
-      object[sound.id] = Number(sound.volume);
-    });
-
-    return JSON.stringify(object);
-  }, [selected]);
+    return JSON.stringify(createSharedMixPayload(snapshot));
+  }, [sounds, generatorSettings]);
 
   const url = useMemo(() => {
     const path = `/?share=${encodeURIComponent(string)}`;

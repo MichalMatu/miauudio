@@ -49,6 +49,23 @@ function createInitialSounds() {
   return initialSounds;
 }
 
+function getShuffleableSoundIDs() {
+  return soundCategories.categories.flatMap(category =>
+    category.sounds
+      .filter(sound => sound.shuffleable !== false)
+      .map(sound => sound.id),
+  );
+}
+
+function resetSelection(sounds: Record<string, SoundValue>) {
+  return Object.fromEntries(
+    Object.entries(sounds).map(([id, sound]) => [
+      id,
+      { ...sound, isSelected: false, volume: 0.5 },
+    ]),
+  );
+}
+
 export const useSoundStore = create<SoundStore>()(
   persist(
     (set, get) => ({
@@ -77,18 +94,19 @@ export const useSoundStore = create<SoundStore>()(
       },
 
       override(newSounds) {
-        get().unselectAll();
-
-        const sounds = get().sounds;
+        const sounds = resetSelection(get().sounds);
 
         Object.keys(newSounds).forEach(sound => {
           if (sounds[sound]) {
-            sounds[sound].isSelected = true;
-            sounds[sound].volume = newSounds[sound];
+            sounds[sound] = {
+              ...sounds[sound],
+              isSelected: true,
+              volume: newSounds[sound],
+            };
           }
         });
 
-        set({ history: null, sounds: { ...sounds } });
+        set({ history: null, sounds });
       },
 
       pause() {
@@ -127,19 +145,16 @@ export const useSoundStore = create<SoundStore>()(
       },
 
       shuffle() {
-        const sounds = get().sounds;
-        const ids = Object.keys(sounds);
+        const sounds = resetSelection(get().sounds);
 
-        ids.forEach(id => {
-          sounds[id].isSelected = false;
-          sounds[id].volume = 0.5;
-        });
-
-        const randomIDs = pickMany(ids, 4);
+        const randomIDs = pickMany(getShuffleableSoundIDs(), 4);
 
         randomIDs.forEach(id => {
-          sounds[id].isSelected = true;
-          sounds[id].volume = random(0.2, 1);
+          sounds[id] = {
+            ...sounds[id],
+            isSelected: true,
+            volume: random(0.2, 1),
+          };
         });
 
         set({ history: null, isPlaying: true, sounds });
@@ -189,14 +204,7 @@ export const useSoundStore = create<SoundStore>()(
           set({ history });
         }
 
-        const ids = Object.keys(sounds);
-
-        ids.forEach(id => {
-          sounds[id].isSelected = false;
-          sounds[id].volume = 0.5;
-        });
-
-        set({ sounds });
+        set({ sounds: resetSelection(sounds) });
       },
     }),
     {

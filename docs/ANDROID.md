@@ -77,19 +77,23 @@ Before sharing an APK, verify:
 
 1. cold start and splash screen;
 2. selection and playback of at least five simultaneous sounds;
-3. per-sound and global volume;
-4. presets, favorites, and sleep timer after restart;
-5. system Back behavior for the menu, regular modals, and Pomodoro settings;
-6. portrait and landscape safe areas;
-7. Bluetooth disconnect and reconnect;
-8. screen lock and background playback.
+3. binaural and isochronic generator selection, live settings, pause/resume,
+   and simultaneous playback with file-based sounds;
+4. per-sound and global volume;
+5. presets, favorites, and sleep timer with generator layers;
+6. presets, favorites, and settings after restart;
+7. system Back behavior for the menu, regular modals, and Pomodoro settings;
+8. portrait and landscape safe areas;
+9. Bluetooth disconnect and reconnect;
+10. screen lock and background playback.
 
 ## Known native limitation
 
-Howler currently plays through the Capacitor WebView. On the tested Samsung
-device playback stopped after the screen was locked. A native Android media
-service or native audio engine is therefore required before release. Browser
-Media Session metadata alone does not solve background execution.
+Howler and the procedural Web Audio generators currently run through the
+Capacitor WebView. On the tested Samsung device playback stopped after the
+screen was locked. A native Android media service or native audio engine is
+therefore required before release. Browser Media Session metadata alone does
+not solve background execution.
 
 Release signing and Play Console configuration have not been added yet.
 

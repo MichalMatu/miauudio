@@ -43,13 +43,14 @@
   }
 
   & .active {
+    flex: 0 0 4px;
     width: 4px;
     height: 4px;
     background: var(--color-neutral-950);
     border-radius: 50%;
   }
 
-  & .shortcut {
+  & .detail {
     font-size: var(--font-2xsm);
   }
 }

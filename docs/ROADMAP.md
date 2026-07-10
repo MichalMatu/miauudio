@@ -22,7 +22,8 @@ must have its own identity, sound library, and product positioning.
 - Android application ID: `io.github.michalmatu.soundscape`.
 - UI: Astro + React.
 - State: Zustand.
-- Current audio engine: Howler.
+- Current audio engines: Howler for bundled files and Web Audio for procedural
+  generators.
 - Mobile shell: Capacitor.
 - Android is the only active native target.
 - Gestures, iOS, and desktop are postponed.
@@ -35,6 +36,9 @@ must have its own identity, sound library, and product positioning.
 - Removed upstream donation and marketing UI.
 - Added Android safe-area handling and system Back behavior.
 - Generated and tested adaptive launcher icons and a splash screen.
+- Added binaural and isochronic generators as first-class mixer layers,
+  including global playback, volume, favorites, presets, sharing, and sleep
+  timer integration.
 - Updated the Astro/PWA build stack and cleared high/moderate production
   dependency-audit findings.
 - Installed and smoke-tested a debug build on a physical Samsung device.
@@ -64,7 +68,7 @@ must have its own identity, sound library, and product positioning.
 - iOS target;
 - desktop target;
 - cloud sync and user accounts;
-- additional procedural ambient generators;
+- additional procedural ambient generators and generator types;
 - sound-pack marketplace.
 
 ## Main risks

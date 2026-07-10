@@ -2,13 +2,16 @@
 
 Miauudio is an Android-first ambient sound mixer for focus, rest, and sleep.
 It is currently an early prototype built with Astro, React, Howler, Zustand,
-and Capacitor.
+the Web Audio API, and Capacitor.
 
 ## Project status
 
 The web application and Android debug build work. The Android wrapper has its
 own build target, adaptive icon, splash screen, safe-area handling, and system
-Back-button integration.
+Back-button integration. Binaural beat and isochronic tone generators are
+available as regular mixer layers and use the same playback, volume, favorite,
+preset, and sleep-timer controls as bundled sounds. Web shared mixes also
+preserve generator settings.
 
 Before a public or paid release, the project still needs:
 

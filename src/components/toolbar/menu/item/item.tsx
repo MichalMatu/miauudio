@@ -11,6 +11,7 @@ interface ItemProps {
   label: string;
   onClick?: () => void;
   shortcut?: string;
+  status?: string;
 }
 
 export function Item({
@@ -21,8 +22,13 @@ export function Item({
   label,
   onClick = () => {},
   shortcut,
+  status,
 }: ItemProps) {
   const Comp = href ? 'a' : 'button';
+  const detail = status ?? shortcut;
+  const ariaLabel = [label, active ? 'active' : null, status]
+    .filter(Boolean)
+    .join(', ');
 
   return (
     <DropdownItem asChild onClick={onClick}>
@@ -30,14 +36,14 @@ export function Item({
         className={styles.item}
         disabled={disabled}
         {...(href ? { href, target: '_blank' } : {})}
-        aria-label={label}
+        aria-label={ariaLabel}
       >
         <span className={styles.label}>
           <span className={styles.icon}>{icon}</span> {label}
           {active && <div className={styles.active} />}
         </span>
 
-        {shortcut && <span className={styles.shortcut}>{shortcut}</span>}
+        {detail && <span className={styles.detail}>{detail}</span>}
 
         {href && (
           <span className={styles.external}>

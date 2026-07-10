@@ -2,24 +2,27 @@ import { useState, useEffect } from 'react';
 
 import { Modal } from '@/components/modal';
 
-import { useSoundStore } from '@/stores/sound';
 import { useSnackbar } from '@/contexts/snackbar';
 import { useCloseListener } from '@/hooks/use-close-listener';
 import { cn } from '@/helpers/styles';
 import { sounds } from '@/data/sounds';
+import {
+  applyMixSnapshot,
+  parseSharedMixPayload,
+  type MixSnapshot,
+} from '@/lib/mix-snapshot';
 
 import styles from './shared.module.css';
 
 export function SharedModal() {
-  const override = useSoundStore(state => state.override);
   const showSnackbar = useSnackbar();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [sharedMix, setSharedMix] = useState<MixSnapshot | null>(null);
   const [sharedSounds, setSharedSounds] = useState<
     Array<{
       id: string;
       label: string;
-      volume: number;
     }>
   >([]);
 
@@ -29,7 +32,9 @@ export function SharedModal() {
 
     if (share) {
       try {
-        const parsed = JSON.parse(decodeURIComponent(share));
+        const parsed = parseSharedMixPayload(JSON.parse(share));
+        if (!parsed) return;
+
         const allSounds: Record<string, string> = {};
 
         sounds.categories.forEach(category => {
@@ -41,39 +46,36 @@ export function SharedModal() {
         const _sharedSounds: Array<{
           id: string;
           label: string;
-          volume: number;
         }> = [];
 
-        Object.keys(parsed).forEach(sound => {
+        Object.keys(parsed.sounds).forEach(sound => {
           if (allSounds[sound]) {
             _sharedSounds.push({
               id: sound,
               label: allSounds[sound],
-              volume: Number(parsed[sound]),
             });
           }
         });
 
         if (_sharedSounds.length) {
           setIsOpen(true);
+          setSharedMix(parsed);
           setSharedSounds(_sharedSounds);
         }
       } catch {
         return;
       } finally {
-        history.pushState({}, '', location.href.split('?')[0]);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('share');
+        window.history.replaceState({}, '', url.toString());
       }
     }
   }, []);
 
   const handleOverride = () => {
-    const newSounds: Record<string, number> = {};
+    if (!sharedMix) return;
 
-    sharedSounds.forEach(sound => {
-      newSounds[sound.id] = sound.volume;
-    });
-
-    override(newSounds);
+    applyMixSnapshot(sharedMix, { autoplay: false });
     setIsOpen(false);
     showSnackbar('Done! You can now play the new selection.');
   };

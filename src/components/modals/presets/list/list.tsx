@@ -2,8 +2,8 @@ import { FaPlay, FaRegTrashAlt } from 'react-icons/fa';
 
 import styles from './list.module.css';
 
-import { useSoundStore } from '@/stores/sound';
 import { usePresetStore } from '@/stores/preset';
+import { applyMixSnapshot } from '@/lib/mix-snapshot';
 
 interface ListProps {
   close: () => void;
@@ -13,8 +13,6 @@ export function List({ close }: ListProps) {
   const presets = usePresetStore(state => state.presets);
   const changeName = usePresetStore(state => state.changeName);
   const deletePreset = usePresetStore(state => state.deletePreset);
-  const override = useSoundStore(state => state.override);
-  const play = useSoundStore(state => state.play);
 
   return (
     <div className={styles.list}>
@@ -40,8 +38,7 @@ export function List({ close }: ListProps) {
           <button
             className={styles.primary}
             onClick={() => {
-              override(preset.sounds);
-              play();
+              applyMixSnapshot(preset.snapshot, { autoplay: true });
               close();
             }}
           >
