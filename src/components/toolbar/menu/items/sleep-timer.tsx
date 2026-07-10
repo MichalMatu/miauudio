@@ -8,7 +8,7 @@ interface SleepTimerProps {
 }
 
 export function SleepTimer({ open }: SleepTimerProps) {
-  const active = useSleepTimerStore(state => state.active);
+  const active = useSleepTimerStore(state => state.endsAt !== null);
 
   return (
     <Item

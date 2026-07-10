@@ -1,4 +1,4 @@
-import { sounds as soundCategories } from '@/data/sounds';
+import { bundledCategories } from '@/data/sounds';
 import {
   GENERATOR_PRESETS,
   useGeneratorStore,
@@ -26,9 +26,7 @@ const GENERATOR_PRESET_IDS = new Set<GeneratorPresetId>([
   'custom',
 ]);
 const SOUND_IDS = new Set(
-  soundCategories.categories.flatMap(category =>
-    category.sounds.map(sound => sound.id),
-  ),
+  bundledCategories.flatMap(category => category.sounds.map(sound => sound.id)),
 );
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -109,16 +107,26 @@ export function applyMixSnapshot(
   generatorStore.apply(nextGeneratorSettings);
 
   const soundStore = useSoundStore.getState();
-  soundStore.override(snapshot.sounds);
+  const result = soundStore.override(snapshot.sounds);
 
-  if (autoplay) soundStore.play();
+  if (autoplay && result.appliedIds.length > 0) soundStore.play();
   else soundStore.pause();
+
+  return result;
 }
 
 export function createSharedMixPayload(
   snapshot: MixSnapshot,
 ): SharedMixPayload {
-  return { snapshot, version: 1 };
+  return {
+    snapshot: {
+      generators: cloneGeneratorSettings(snapshot.generators),
+      sounds: Object.fromEntries(
+        Object.entries(snapshot.sounds).filter(([id]) => SOUND_IDS.has(id)),
+      ),
+    },
+    version: 1,
+  };
 }
 
 export function parseSharedMixPayload(input: unknown): MixSnapshot | null {

@@ -9,8 +9,9 @@ interface RangeProps {
 
 export function Range({ id, label }: RangeProps) {
   const setVolume = useSoundStore(state => state.setVolume);
-  const volume = useSoundStore(state => state.sounds[id].volume);
-  const isSelected = useSoundStore(state => state.sounds[id].isSelected);
+  const sound = useSoundStore(state => state.sounds[id]);
+  const volume = sound.volume;
+  const isSelected = sound.isSelected;
   const locked = useSoundStore(state => state.locked);
 
   return (

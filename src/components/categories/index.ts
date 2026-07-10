@@ -1,1 +1,1 @@
-export { Categories } from './categories';
+export { Categories, type DisplayCategory } from './categories';

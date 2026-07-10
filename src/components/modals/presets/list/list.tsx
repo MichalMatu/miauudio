@@ -4,6 +4,7 @@ import styles from './list.module.css';
 
 import { usePresetStore } from '@/stores/preset';
 import { applyMixSnapshot } from '@/lib/mix-snapshot';
+import { useSnackbar } from '@/contexts/snackbar';
 
 interface ListProps {
   close: () => void;
@@ -13,6 +14,7 @@ export function List({ close }: ListProps) {
   const presets = usePresetStore(state => state.presets);
   const changeName = usePresetStore(state => state.changeName);
   const deletePreset = usePresetStore(state => state.deletePreset);
+  const showSnackbar = useSnackbar();
 
   return (
     <div className={styles.list}>
@@ -38,7 +40,23 @@ export function List({ close }: ListProps) {
           <button
             className={styles.primary}
             onClick={() => {
-              applyMixSnapshot(preset.snapshot, { autoplay: true });
+              const result = applyMixSnapshot(preset.snapshot, {
+                autoplay: true,
+              });
+
+              if (!result.appliedIds.length) {
+                showSnackbar(
+                  'No sounds from this preset are available on this device.',
+                );
+                return;
+              }
+              if (result.missingIds.length) {
+                showSnackbar(
+                  `${result.missingIds.length} unavailable preset ${
+                    result.missingIds.length === 1 ? 'sound was' : 'sounds were'
+                  } skipped.`,
+                );
+              }
               close();
             }}
           >

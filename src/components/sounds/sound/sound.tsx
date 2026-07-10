@@ -4,7 +4,9 @@ import { ImSpinner9 } from 'react-icons/im';
 import { Range } from './range';
 import { Favorite } from './favorite';
 import { Playback } from './playback';
+import { UserSoundActions } from './user-actions';
 
+import { SoundIcon } from '@/components/sound-icon';
 import { useSoundStore } from '@/stores/sound';
 import { useSettingsStore } from '@/stores/settings';
 import { useLoadingStore } from '@/stores/loading';
@@ -39,19 +41,25 @@ export const Sound = forwardRef<HTMLDivElement, SoundProps>(
     const selectSound = useSoundStore(state => state.select);
     const unselectSound = useSoundStore(state => state.unselect);
     const setVolume = useSoundStore(state => state.setVolume);
-    const isSelected = useSoundStore(state => state.sounds[id].isSelected);
+    const soundState = useSoundStore(state => state.sounds[id]);
+    const isSelected = soundState.isSelected;
     const locked = useSoundStore(state => state.locked);
 
-    const volume = useSoundStore(state => state.sounds[id].volume);
+    const volume = soundState.volume;
     const globalVolume = useSettingsStore(state => state.globalVolume);
     const adjustedVolume = useMemo(
       () => volume * globalVolume,
       [volume, globalVolume],
     );
 
-    const src = 'src' in props ? props.src : undefined;
+    const loadingKey =
+      props.kind === 'file'
+        ? props.source.kind === 'asset'
+          ? props.source.path
+          : props.source.fileId
+        : undefined;
     const isLoading = useLoadingStore(state =>
-      src ? state.loaders[src] : false,
+      loadingKey ? state.loaders[loadingKey] : false,
     );
 
     useEffect(() => {
@@ -108,6 +116,9 @@ export const Sound = forwardRef<HTMLDivElement, SoundProps>(
           onClick={handleClick}
           onKeyDown={handleKeyDown}
         >
+          {props.origin === 'user' && (
+            <UserSoundActions id={id} label={label} />
+          )}
           <Favorite id={id} label={label} />
           <div className={styles.icon}>
             {isLoading ? (
@@ -115,7 +126,9 @@ export const Sound = forwardRef<HTMLDivElement, SoundProps>(
                 <ImSpinner9 />
               </span>
             ) : (
-              <span aria-hidden="true">{icon}</span>
+              <span aria-hidden="true">
+                <SoundIcon id={icon} />
+              </span>
             )}
           </div>
           <div className={styles.label} id={id}>

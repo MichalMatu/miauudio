@@ -10,18 +10,14 @@ import { generators } from './sounds/generators';
 
 import type { Categories } from './types';
 
-export const sounds: {
-  categories: Categories;
-} = {
-  categories: [
-    nature,
-    rain,
-    animals,
-    urban,
-    places,
-    transport,
-    things,
-    noise,
-    generators,
-  ],
-};
+export const bundledCategories: Categories = [
+  nature,
+  rain,
+  animals,
+  urban,
+  places,
+  transport,
+  things,
+  noise,
+  generators,
+];

@@ -5,7 +5,7 @@ import { Modal } from '@/components/modal';
 import { useSnackbar } from '@/contexts/snackbar';
 import { useCloseListener } from '@/hooks/use-close-listener';
 import { cn } from '@/helpers/styles';
-import { sounds } from '@/data/sounds';
+import { bundledCategories } from '@/data/sounds';
 import {
   applyMixSnapshot,
   parseSharedMixPayload,
@@ -37,7 +37,7 @@ export function SharedModal() {
 
         const allSounds: Record<string, string> = {};
 
-        sounds.categories.forEach(category => {
+        bundledCategories.forEach(category => {
           category.sounds.forEach(sound => {
             allSounds[sound.id] = sound.label;
           });

@@ -1,4 +1,4 @@
-import { sounds } from '@/data/sounds';
+import { bundledCategories } from '@/data/sounds';
 
 /**
  * Counts the total number of sounds across all categories.
@@ -9,7 +9,7 @@ import { sounds } from '@/data/sounds';
 export function count(round: boolean = false) {
   let count = 0;
 
-  sounds.categories.forEach(category => {
+  bundledCategories.forEach(category => {
     count += category.sounds.length;
   });
 

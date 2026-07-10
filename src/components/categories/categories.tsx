@@ -4,8 +4,12 @@ import { Category } from './category';
 
 import type { Categories } from '@/data/types';
 
+export type DisplayCategory = Categories[number] & {
+  action?: React.ReactNode;
+};
+
 interface CategoriesProps {
-  categories: Categories;
+  categories: Array<DisplayCategory>;
 }
 
 export function Categories({ categories }: CategoriesProps) {

@@ -4,6 +4,8 @@ import { useGeneratorAudio } from '@/hooks/use-generator-audio';
 import { useSound } from '@/hooks/use-sound';
 import { useSnackbar } from '@/contexts/snackbar';
 import { useSoundStore } from '@/stores/sound';
+import { IS_NATIVE_APP } from '@/constants/app';
+import { getAssetPath } from '@/helpers/path';
 
 import type { FileSound, GeneratorSound, Sound } from '@/data/types';
 
@@ -21,14 +23,18 @@ interface FilePlaybackProps
   sound: FileSound;
 }
 
-function FilePlayback({
+interface AssetFilePlaybackProps extends Omit<FilePlaybackProps, 'sound'> {
+  path: string;
+}
+
+function AssetFilePlayback({
   isPlaying,
   isSelected,
   locked,
-  sound: definition,
+  path,
   volume,
-}: FilePlaybackProps) {
-  const sound = useSound(definition.src, { loop: true, volume });
+}: AssetFilePlaybackProps) {
+  const sound = useSound(getAssetPath(path), { loop: true, volume });
 
   useEffect(() => {
     if (locked) return;
@@ -38,6 +44,12 @@ function FilePlayback({
   }, [isSelected, sound, isPlaying, locked]);
 
   return null;
+}
+
+function FilePlayback({ sound, ...state }: FilePlaybackProps) {
+  if (sound.source.kind !== 'asset') return null;
+
+  return <AssetFilePlayback path={sound.source.path} {...state} />;
 }
 
 interface GeneratorPlaybackProps
@@ -74,7 +86,7 @@ function GeneratorPlayback({
 }
 
 export function Playback({ functional, sound, ...state }: PlaybackProps) {
-  if (!functional) return null;
+  if (IS_NATIVE_APP || !functional) return null;
   if ('generator' in sound)
     return <GeneratorPlayback sound={sound} {...state} />;
 

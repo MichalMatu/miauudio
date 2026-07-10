@@ -12,12 +12,13 @@ import styles from './sounds.module.css';
 import type { Sounds } from '@/data/types';
 
 interface SoundsProps {
+  action?: React.ReactNode;
   functional: boolean;
   id: string;
   sounds: Sounds;
 }
 
-export function Sounds({ functional, id, sounds }: SoundsProps) {
+export function Sounds({ action, functional, id, sounds }: SoundsProps) {
   const [soundsRef] = useAutoAnimate<HTMLDivElement>({ duration: 300 });
   const [showAll, setShowAll] = useLocalStorage(`${id}-show-more`, false);
   const [clickedMore, setClickedMore] = useState(false);
@@ -71,9 +72,11 @@ export function Sounds({ functional, id, sounds }: SoundsProps) {
   return (
     <div>
       <div
-        ref={id === 'favorites' ? soundsRef : undefined}
+        ref={id === 'favorites' || id === 'my-sounds' ? soundsRef : undefined}
         className={styles.sounds}
       >
+        {action}
+
         {sounds.map((sound, index) => (
           <Sound
             key={sound.id}
@@ -86,8 +89,8 @@ export function Sounds({ functional, id, sounds }: SoundsProps) {
           />
         ))}
 
-        {sounds.length < 2 &&
-          new Array(2 - sounds.length)
+        {sounds.length + (action ? 1 : 0) < 2 &&
+          new Array(2 - sounds.length - (action ? 1 : 0))
             .fill(null)
             .map((_, index) => <div key={index} />)}
       </div>

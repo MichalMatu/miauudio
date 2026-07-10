@@ -1,11 +1,12 @@
 import { BiShuffle } from 'react-icons/bi';
 
 import { useSoundStore } from '@/stores/sound';
+import { useShuffleSounds } from '@/hooks/use-shuffle-sounds';
 
 import { Item } from '../item';
 
 export function Shuffle() {
-  const shuffle = useSoundStore(state => state.shuffle);
+  const shuffle = useShuffleSounds();
   const locked = useSoundStore(state => state.locked);
 
   return (

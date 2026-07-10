@@ -180,8 +180,16 @@ export function useSound(
   }, [fadeOut]);
 
   useEffect(() => {
-    return () => clearFadeTimeout();
-  }, [clearFadeTimeout]);
+    return () => {
+      clearFadeTimeout();
+      if (!sound) return;
+
+      sound.off();
+      sound.stop();
+      sound.unload();
+      setIsLoading(src, false);
+    };
+  }, [clearFadeTimeout, setIsLoading, sound, src]);
 
   const control = useMemo(
     () => ({ fadeOut, isLoading, pause, play, stop }),

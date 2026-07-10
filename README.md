@@ -1,25 +1,38 @@
 # Miauudio
 
 Miauudio is an Android-first ambient sound mixer for focus, rest, and sleep.
-It is currently an early prototype built with Astro, React, Howler, Zustand,
-the Web Audio API, and Capacitor.
+The shared interface is built with Astro, React, Zustand, and Capacitor. The
+web target uses Howler and the Web Audio API, while Android playback runs in a
+native media service.
 
 ## Project status
 
-The web application and Android debug build work. The Android wrapper has its
-own build target, adaptive icon, splash screen, safe-area handling, and system
-Back-button integration. Binaural beat and isochronic tone generators are
-available as regular mixer layers and use the same playback, volume, favorite,
-preset, and sleep-timer controls as bundled sounds. Web shared mixes also
-preserve generator settings. The interface currently uses a deliberate
-dark-only color scheme.
+The web application and Android debug build work. Sound and category
+definitions are serializable data, so bundled files, generators, and imported
+files participate in the same mixer state. Binaural beat and isochronic tone
+generators use the same playback, volume, favorite, preset, and sleep timer
+controls as file-based sounds. Web shared mixes preserve generator
+settings; imported files remain local to Android and are not included in
+shared links.
+
+Android uses a Media3 `MediaSessionService`, foreground media notification,
+audio focus handling, headphone-disconnect handling, and a partial wake lock.
+Bundled and user-imported files are decoded by Media3, while procedural
+generators run through a native audio track. Playback can therefore continue
+when the app is backgrounded or the screen is locked and can be controlled
+from Android's system media controls. Imported audio is copied into app-private
+storage and can be renamed or deleted from the `My Sounds` category.
+
+The Android wrapper also has its own build target, adaptive icon, splash
+screen, safe-area handling, and system Back-button integration. The interface
+currently uses a deliberate dark-only color scheme.
 
 Before a public or paid release, the project still needs:
 
-- reliable playback while the screen is locked or the app is backgrounded;
 - original branding assets;
 - a release-cleared sound library with per-file license records;
-- release signing, store configuration, and long-running device tests.
+- release signing, privacy and store configuration;
+- long-running, interruption, and multi-device playback tests.
 
 See [the roadmap](docs/ROADMAP.md) for the current priorities.
 
@@ -93,7 +106,7 @@ More details are available in [Android development](docs/ANDROID.md).
 android/                 Android/Capacitor project
 docs/                    Development notes and roadmap
 public/                  Static assets and the current sound library
-src/                     Astro and React application
+src/                     Astro/React UI, serializable catalogue, and stores
 capacitor.config.ts      Native application configuration
 AUDIO_LICENSES.md        Audio license status and per-file record template
 THIRD_PARTY_NOTICES.md   Upstream attribution and third-party notices
