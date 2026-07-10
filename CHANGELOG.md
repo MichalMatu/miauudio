@@ -23,6 +23,7 @@ All notable Miauudio changes will be documented in this file.
 ### Fixed
 
 - Prevented safe-area layout shifts when opening menus and dialogs.
+- Smoothed favorite-card removal and Favorites-section reflow.
 
 The inherited release history is preserved in
 [docs/UPSTREAM_CHANGELOG.md](docs/UPSTREAM_CHANGELOG.md).

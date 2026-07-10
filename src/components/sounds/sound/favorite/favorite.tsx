@@ -40,20 +40,20 @@ export function Favorite({ id, label }: FavoriteProps) {
   const handleKeyDown = useKeyboardButton(handleToggle);
 
   return (
-    <AnimatePresence initial={false} mode="wait">
-      <button
-        className={cn(styles.favoriteButton, isFavorite && styles.isFavorite)}
-        aria-label={
-          isFavorite
-            ? `Remove ${label} Sound from Favorites`
-            : `Add ${label} Sound to Favorites`
-        }
-        onKeyDown={handleKeyDown}
-        onClick={e => {
-          e.stopPropagation();
-          handleToggle();
-        }}
-      >
+    <button
+      className={cn(styles.favoriteButton, isFavorite && styles.isFavorite)}
+      aria-label={
+        isFavorite
+          ? `Remove ${label} Sound from Favorites`
+          : `Add ${label} Sound to Favorites`
+      }
+      onKeyDown={handleKeyDown}
+      onClick={e => {
+        e.stopPropagation();
+        handleToggle();
+      }}
+    >
+      <AnimatePresence initial={false} mode="wait">
         <motion.span
           animate="show"
           aria-hidden="true"
@@ -64,7 +64,7 @@ export function Favorite({ id, label }: FavoriteProps) {
         >
           {isFavorite ? <BiSolidHeart /> : <BiHeart />}
         </motion.span>
-      </button>
-    </AnimatePresence>
+      </AnimatePresence>
+    </button>
   );
 }

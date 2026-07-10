@@ -1,4 +1,4 @@
-import { AnimatePresence } from 'motion/react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 
 import { Category } from './category';
 
@@ -9,13 +9,15 @@ interface CategoriesProps {
 }
 
 export function Categories({ categories }: CategoriesProps) {
+  const [categoriesRef] = useAutoAnimate<HTMLDivElement>({ duration: 300 });
+
   return (
-    <AnimatePresence initial={false}>
+    <div ref={categoriesRef}>
       {categories.map(category => (
         <div key={category.id}>
           <Category functional={category.id !== 'favorites'} {...category} />
         </div>
       ))}
-    </AnimatePresence>
+    </div>
   );
 }

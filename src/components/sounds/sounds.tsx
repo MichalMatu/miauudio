@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { AnimatePresence, motion } from 'motion/react';
 
 import { Sound } from './sound';
@@ -17,6 +18,7 @@ interface SoundsProps {
 }
 
 export function Sounds({ functional, id, sounds }: SoundsProps) {
+  const [soundsRef] = useAutoAnimate<HTMLDivElement>({ duration: 300 });
   const [showAll, setShowAll] = useLocalStorage(`${id}-show-more`, false);
   const [clickedMore, setClickedMore] = useState(false);
 
@@ -68,10 +70,13 @@ export function Sounds({ functional, id, sounds }: SoundsProps) {
 
   return (
     <div>
-      <div className={styles.sounds}>
+      <div
+        ref={id === 'favorites' ? soundsRef : undefined}
+        className={styles.sounds}
+      >
         {sounds.map((sound, index) => (
           <Sound
-            key={sound.label}
+            key={sound.id}
             {...sound}
             functional={functional}
             hidden={!showAll && index > 5}
