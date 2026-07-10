@@ -1,4 +1,4 @@
-import { IoMdFlower } from 'react-icons/io/index';
+import { IoMdFlower } from 'react-icons/io';
 
 import { Item } from '../item';
 

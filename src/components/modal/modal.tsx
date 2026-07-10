@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { IoClose } from 'react-icons/io5/index';
+import { IoClose } from 'react-icons/io5';
 import FocusTrap from 'focus-trap-react';
 
 import { Portal } from '@/components/portal';
@@ -35,14 +35,15 @@ export function Modal({
   };
 
   useEffect(() => {
-    if (show && lockBody) {
-      document.body.style.overflowY = 'hidden';
-    } else if (lockBody) {
-      // Wait for transition to finish before allowing scrollbar to return
-      setTimeout(() => {
-        document.body.style.overflowY = 'auto';
-      }, TRANSITION_DURATION);
-    }
+    if (!show || !lockBody) return;
+
+    const previousOverflowY = document.body.style.overflowY;
+
+    document.body.style.overflowY = 'hidden';
+
+    return () => {
+      document.body.style.overflowY = previousOverflowY;
+    };
   }, [show, lockBody]);
 
   useEffect(() => {
@@ -69,7 +70,7 @@ export function Modal({
 
   const content = (
     <FocusTrap active={show}>
-      <div>
+      <div data-app-layer={show ? 'open' : undefined} data-modal-root>
         <motion.div
           {...animationProps}
           className={styles.overlay}
@@ -85,7 +86,11 @@ export function Modal({
             transition={{ duration: TRANSITION_DURATION / 1000 }}
             variants={variants.modal}
           >
-            <button className={styles.close} onClick={onClose}>
+            <button
+              aria-label="Close dialog"
+              className={styles.close}
+              onClick={onClose}
+            >
               <IoClose />
             </button>
             {children}

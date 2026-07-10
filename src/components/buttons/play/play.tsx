@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { BiPause, BiPlay } from 'react-icons/bi/index';
+import { BiPause, BiPlay } from 'react-icons/bi';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 import { useSoundStore } from '@/stores/sound';

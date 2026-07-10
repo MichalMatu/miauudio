@@ -1,9 +1,10 @@
-import { FaPlay, FaRegTrashAlt } from 'react-icons/fa/index';
+import { FaPlay, FaRegTrashAlt } from 'react-icons/fa';
 
 import styles from './list.module.css';
 
-import { useSoundStore } from '@/stores/sound';
 import { usePresetStore } from '@/stores/preset';
+import { applyMixSnapshot } from '@/lib/mix-snapshot';
+import { useSnackbar } from '@/contexts/snackbar';
 
 interface ListProps {
   close: () => void;
@@ -13,8 +14,7 @@ export function List({ close }: ListProps) {
   const presets = usePresetStore(state => state.presets);
   const changeName = usePresetStore(state => state.changeName);
   const deletePreset = usePresetStore(state => state.deletePreset);
-  const override = useSoundStore(state => state.override);
-  const play = useSoundStore(state => state.play);
+  const showSnackbar = useSnackbar();
 
   return (
     <div className={styles.list}>
@@ -40,8 +40,23 @@ export function List({ close }: ListProps) {
           <button
             className={styles.primary}
             onClick={() => {
-              override(preset.sounds);
-              play();
+              const result = applyMixSnapshot(preset.snapshot, {
+                autoplay: true,
+              });
+
+              if (!result.appliedIds.length) {
+                showSnackbar(
+                  'No sounds from this preset are available on this device.',
+                );
+                return;
+              }
+              if (result.missingIds.length) {
+                showSnackbar(
+                  `${result.missingIds.length} unavailable preset ${
+                    result.missingIds.length === 1 ? 'sound was' : 'sounds were'
+                  } skipped.`,
+                );
+              }
               close();
             }}
           >

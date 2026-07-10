@@ -3,6 +3,7 @@ import { useState, type FormEvent } from 'react';
 import { cn } from '@/helpers/styles';
 import { useSoundStore } from '@/stores/sound';
 import { usePresetStore } from '@/stores/preset';
+import { captureMixSnapshot } from '@/lib/mix-snapshot';
 
 import styles from './new.module.css';
 
@@ -10,7 +11,6 @@ export function New() {
   const [name, setName] = useState('');
 
   const noSelected = useSoundStore(state => state.noSelected());
-  const sounds = useSoundStore(state => state.sounds);
   const addPreset = usePresetStore(state => state.addPreset);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -18,15 +18,7 @@ export function New() {
 
     if (!name || noSelected) return;
 
-    const _sounds: Record<string, number> = {};
-
-    Object.keys(sounds)
-      .filter(id => sounds[id].isSelected)
-      .forEach(id => {
-        _sounds[id] = sounds[id].volume;
-      });
-
-    addPreset(name, _sounds);
+    addPreset(name, captureMixSnapshot());
 
     setName('');
   };

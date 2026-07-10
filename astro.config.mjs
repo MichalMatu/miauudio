@@ -3,13 +3,16 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import AstroPWA from '@vite-pwa/astro';
 
+const isNativeBuild = process.env.PUBLIC_APP_TARGET === 'native';
+
 export default defineConfig({
   integrations: [
     react(),
     AstroPWA({
+      disable: isNativeBuild,
       manifest: {
         background_color: '#09090b',
-        description: 'Ambient sounds for focus and calm.',
+        description: 'Ambient sounds for focus, rest, and sleep.',
         display: 'standalone',
         icons: [
           ...[72, 128, 144, 152, 192, 256, 512].map(size => ({
@@ -18,10 +21,10 @@ export default defineConfig({
             type: 'image/png',
           })),
         ],
-        name: 'Moodist',
+        name: 'Miauudio',
         orientation: 'any',
         scope: '/',
-        short_name: 'Moodist',
+        short_name: 'Miauudio',
         start_url: '/',
         theme_color: '#09090b',
       },

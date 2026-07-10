@@ -1,27 +1,44 @@
 import { useMemo, useEffect } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { BiSolidHeart } from 'react-icons/bi/index';
 import { Howler } from 'howler';
 
 import { useSoundStore } from '@/stores/sound';
+import {
+  toUserSoundDefinition,
+  useSoundLibraryStore,
+} from '@/stores/sound-library';
 
 import { Container } from '@/components/container';
 import { StoreConsumer } from '@/components/store-consumer';
 import { Buttons } from '@/components/buttons';
-import { Categories } from '@/components/categories';
+import { Categories, type DisplayCategory } from '@/components/categories';
+import { ImportSoundCard } from '@/components/sounds';
 import { SharedModal } from '@/components/modals/shared';
 import { Toolbar } from '@/components/toolbar';
 import { SnackbarProvider } from '@/contexts/snackbar';
 import { MediaControls } from '@/components/media-controls';
+import { NativeAudioController } from '@/components/native-audio-controller';
+import { NativeBackHandler } from './native-back-handler';
 
-import { sounds } from '@/data/sounds';
+import { IS_NATIVE_APP } from '@/constants/app';
+import { bundledCategories } from '@/data/sounds';
 import { FADE_OUT } from '@/constants/events';
 
-import type { Sound } from '@/data/types';
 import { subscribe } from '@/lib/event';
 
 export function App() {
-  const categories = useMemo(() => sounds.categories, []);
+  const records = useSoundLibraryStore(state => state.records);
+  const userSounds = useMemo(
+    () => records.map(toUserSoundDefinition),
+    [records],
+  );
+  const allSounds = useMemo(
+    () => [
+      ...userSounds,
+      ...bundledCategories.flatMap(category => category.sounds),
+    ],
+    [userSounds],
+  );
 
   const favorites = useSoundStore(useShallow(state => state.getFavorites()));
   const pause = useSoundStore(state => state.pause);
@@ -29,20 +46,17 @@ export function App() {
   const unlock = useSoundStore(state => state.unlock);
 
   const favoriteSounds = useMemo(() => {
-    const favoriteSounds = categories
-      .map(category => category.sounds)
-      .flat()
-      .filter(sound => favorites.includes(sound.id));
+    const soundsById = new Map(allSounds.map(sound => [sound.id, sound]));
 
-    /**
-     * Reorder based on the order of favorites
-     */
-    return favorites.map(favorite =>
-      favoriteSounds.find(sound => sound.id === favorite),
-    );
-  }, [favorites, categories]);
+    return favorites.flatMap(id => {
+      const sound = soundsById.get(id);
+      return sound ? [sound] : [];
+    });
+  }, [allSounds, favorites]);
 
   useEffect(() => {
+    if (IS_NATIVE_APP) return;
+
     const onChange = () => {
       const { ctx } = Howler;
 
@@ -72,23 +86,35 @@ export function App() {
   }, [pause, lock, unlock]);
 
   const allCategories = useMemo(() => {
-    const favorites = [];
+    const categories: Array<DisplayCategory> = [];
 
     if (favoriteSounds.length) {
-      favorites.push({
-        icon: <BiSolidHeart />,
+      categories.push({
+        icon: 'BiSolidHeart',
         id: 'favorites',
-        sounds: favoriteSounds as Array<Sound>,
+        sounds: favoriteSounds,
         title: 'Favorites',
       });
     }
 
-    return [...favorites, ...categories];
-  }, [favoriteSounds, categories]);
+    if (IS_NATIVE_APP) {
+      categories.push({
+        action: <ImportSoundCard />,
+        icon: 'IoMusicalNotes',
+        id: 'my-sounds',
+        sounds: userSounds,
+        title: 'My Sounds',
+      });
+    }
+
+    return [...categories, ...bundledCategories];
+  }, [favoriteSounds, userSounds]);
 
   return (
     <SnackbarProvider>
+      <NativeBackHandler />
       <StoreConsumer>
+        <NativeAudioController ready sounds={allSounds} />
         <MediaControls />
         <Container>
           <div id="app" />

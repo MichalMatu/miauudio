@@ -1,4 +1,4 @@
-import { MdKeyboardCommandKey } from 'react-icons/md/index';
+import { MdKeyboardCommandKey } from 'react-icons/md';
 
 import { Item } from '../item';
 

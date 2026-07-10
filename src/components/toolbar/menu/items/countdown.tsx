@@ -1,4 +1,4 @@
-import { MdOutlineTimer } from 'react-icons/md/index';
+import { MdOutlineTimer } from 'react-icons/md';
 
 import { Item } from '../item';
 

@@ -31,9 +31,11 @@ export const useNoteStore = create<NoteStore>()(
       note: '',
 
       restore() {
-        if (!get().history) return;
+        const history = get().history;
 
-        set({ history: null, note: get().history! });
+        if (!history) return;
+
+        set({ history: null, note: history });
       },
 
       words() {
@@ -51,7 +53,7 @@ export const useNoteStore = create<NoteStore>()(
           // @ts-expect-error
           persisted,
         ),
-      name: 'moodist-note',
+      name: 'miauudio-note',
       partialize: state => ({ note: state.note }),
       skipHydration: true,
       storage: createJSONStorage(() => localStorage),

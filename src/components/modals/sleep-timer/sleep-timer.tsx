@@ -1,8 +1,11 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Modal } from '@/components/modal';
 import { Timer } from './timer';
+import { IS_NATIVE_APP } from '@/constants/app';
+import { useSnackbar } from '@/contexts/snackbar';
 import { dispatch } from '@/lib/event';
+import { cancelSleepTimer, scheduleSleepTimer } from '@/lib/native-audio';
 import { useSoundStore } from '@/stores/sound';
 import { cn } from '@/helpers/styles';
 import { FADE_OUT } from '@/constants/events';
@@ -16,70 +19,99 @@ interface SleepTimerModalProps {
 }
 
 export function SleepTimerModal({ onClose, show }: SleepTimerModalProps) {
-  const setActive = useSleepTimerStore(state => state.set);
+  const endsAt = useSleepTimerStore(state => state.endsAt);
+  const startedAt = useSleepTimerStore(state => state.startedAt);
+  const clearTimer = useSleepTimerStore(state => state.clear);
+  const startTimer = useSleepTimerStore(state => state.start);
   const noSelected = useSoundStore(state => state.noSelected());
-
-  const [running, setRunning] = useState(false);
-
-  useEffect(() => setActive(running), [running, setActive]);
+  const showSnackbar = useSnackbar();
+  const running = endsAt !== null;
 
   const [hours, setHours] = useState<string>('0');
   const [minutes, setMinutes] = useState<string>('10');
+  const [now, setNow] = useState(Date.now());
+  const [scheduling, setScheduling] = useState(false);
 
   const totalSeconds = useMemo(
     () =>
-      (hours === '' ? 0 : parseInt(hours)) * 3600 +
-      (minutes === '' ? 0 : parseInt(minutes)) * 60,
+      (hours === '' ? 0 : Number.parseInt(hours, 10)) * 3600 +
+      (minutes === '' ? 0 : Number.parseInt(minutes, 10)) * 60,
     [hours, minutes],
   );
 
-  const [timeSpent, setTimeSpent] = useState(0);
-
   const timeLeft = useMemo(
-    () => totalSeconds - timeSpent,
-    [totalSeconds, timeSpent],
+    () => (endsAt === null ? 0 : Math.max(0, Math.ceil((endsAt - now) / 1000))),
+    [endsAt, now],
   );
 
-  const timerId = useRef<ReturnType<typeof setInterval>>();
+  const timeSpent = useMemo(
+    () =>
+      startedAt === null
+        ? 0
+        : Math.max(0, Math.floor((now - startedAt) / 1000)),
+    [now, startedAt],
+  );
 
   const isPlaying = useSoundStore(state => state.isPlaying);
   const play = useSoundStore(state => state.play);
-  const pause = useSoundStore(state => state.pause);
 
-  const handleStart = () => {
-    if (timerId.current) clearInterval(timerId.current);
-    if (noSelected) return;
-    if (!isPlaying) play();
+  useEffect(() => {
+    if (!running) return;
 
-    if (totalSeconds > 0) {
-      setRunning(true);
+    setNow(Date.now());
+    const timerId = setInterval(() => setNow(Date.now()), 1000);
 
-      const newTimerId = setInterval(() => {
-        setTimeSpent(prev => prev + 1);
-      }, 1000);
+    return () => clearInterval(timerId);
+  }, [running]);
 
-      timerId.current = newTimerId;
+  const handleStart = async () => {
+    if (noSelected || totalSeconds <= 0 || scheduling) return;
+
+    const startedAt = Date.now();
+    const durationMs = totalSeconds * 1000;
+    setScheduling(true);
+
+    try {
+      if (IS_NATIVE_APP) {
+        const state = await scheduleSleepTimer({
+          durationMs,
+          fadeMs: 1000,
+        });
+
+        if (state.timerEndsAt === null) {
+          throw new Error('The native timer was not scheduled.');
+        }
+
+        startTimer(state.timerEndsAt, startedAt);
+      } else {
+        startTimer(startedAt + durationMs, startedAt);
+      }
+
+      if (!isPlaying) play();
+    } catch {
+      showSnackbar('Could not start the sleep timer.');
+    } finally {
+      setScheduling(false);
     }
   };
 
   useEffect(() => {
-    if (timeLeft === 0) {
-      setRunning(false);
+    if (IS_NATIVE_APP || endsAt === null || timeLeft > 0) return;
 
-      dispatch(FADE_OUT, { duration: 1000 });
+    clearTimer();
+    dispatch(FADE_OUT, { duration: 1000 });
+  }, [clearTimer, endsAt, timeLeft]);
 
-      setTimeSpent(0);
+  const handleReset = async () => {
+    try {
+      if (IS_NATIVE_APP) await cancelSleepTimer();
 
-      if (timerId.current) clearInterval(timerId.current);
+      clearTimer();
+      setHours('0');
+      setMinutes('10');
+    } catch {
+      showSnackbar('Could not cancel the sleep timer.');
     }
-  }, [timeLeft, pause]);
-
-  const handleReset = () => {
-    if (timerId.current) clearInterval(timerId.current);
-    setTimeSpent(0);
-    setHours('0');
-    setMinutes('10');
-    setRunning(false);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -116,7 +148,7 @@ export function SleepTimerModal({ onClose, show }: SleepTimerModalProps) {
               <button
                 className={styles.button}
                 type="button"
-                onClick={handleReset}
+                onClick={() => void handleReset()}
               >
                 Reset
               </button>
@@ -125,6 +157,7 @@ export function SleepTimerModal({ onClose, show }: SleepTimerModalProps) {
             {!running && (
               <button
                 className={cn(styles.button, styles.primary)}
+                disabled={scheduling}
                 type="submit"
               >
                 Start

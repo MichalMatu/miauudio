@@ -1,24 +1,27 @@
-import { AnimatePresence } from 'motion/react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 
 import { Category } from './category';
-import { Donate } from './donate';
 
 import type { Categories } from '@/data/types';
 
+export type DisplayCategory = Categories[number] & {
+  action?: React.ReactNode;
+};
+
 interface CategoriesProps {
-  categories: Categories;
+  categories: Array<DisplayCategory>;
 }
 
 export function Categories({ categories }: CategoriesProps) {
+  const [categoriesRef] = useAutoAnimate<HTMLDivElement>({ duration: 300 });
+
   return (
-    <AnimatePresence initial={false}>
-      {categories.map((category, index) => (
+    <div ref={categoriesRef}>
+      {categories.map(category => (
         <div key={category.id}>
           <Category functional={category.id !== 'favorites'} {...category} />
-
-          {index === 3 && <Donate />}
         </div>
       ))}
-    </AnimatePresence>
+    </div>
   );
 }

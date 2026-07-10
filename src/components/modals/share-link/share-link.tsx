@@ -1,10 +1,12 @@
 import { useMemo, useEffect, useState } from 'react';
-import { IoCopyOutline, IoCheckmark } from 'react-icons/io5/index';
+import { IoCopyOutline, IoCheckmark } from 'react-icons/io5';
 
 import { Modal } from '@/components/modal';
 
 import { useCopy } from '@/hooks/use-copy';
 import { useSoundStore } from '@/stores/sound';
+import { useGeneratorStore } from '@/stores/generator';
+import { captureMixSnapshot, createSharedMixPayload } from '@/lib/mix-snapshot';
 
 import styles from './share-link.module.css';
 
@@ -16,35 +18,21 @@ interface ShareLinkModalProps {
 export function ShareLinkModal({ onClose, show }: ShareLinkModalProps) {
   const [isMounted, setIsMounted] = useState(false);
   const sounds = useSoundStore(state => state.sounds);
+  const generatorSettings = useGeneratorStore(state => state.settings);
   const { copy, copying } = useCopy();
 
-  const selected = useMemo(() => {
-    return Object.keys(sounds)
-      .map(sound => ({
-        id: sound,
-        isSelected: sounds[sound].isSelected,
-        volume: sounds[sound].volume.toFixed(2),
-      }))
-      .filter(sound => sound.isSelected);
-  }, [sounds, JSON.stringify(sounds)]); // eslint-disable-line
-
   const string = useMemo(() => {
-    const object: Record<string, number> = {};
+    const snapshot = captureMixSnapshot();
 
-    selected.forEach(sound => {
-      object[sound.id] = Number(sound.volume);
-    });
-
-    return JSON.stringify(object);
-  }, [selected]);
+    return JSON.stringify(createSharedMixPayload(snapshot));
+  }, [sounds, generatorSettings]);
 
   const url = useMemo(() => {
-    if (!isMounted)
-      return `https://moodist.app/?share=${encodeURIComponent(string)}`;
+    const path = `/?share=${encodeURIComponent(string)}`;
 
-    return `${window.location.protocol}//${
-      window.location.host
-    }/?share=${encodeURIComponent(string)}`;
+    if (!isMounted) return path;
+
+    return new URL(path, window.location.origin).toString();
   }, [string, isMounted]);
 
   useEffect(() => setIsMounted(true), []);
@@ -58,7 +46,7 @@ export function ShareLinkModal({ onClose, show }: ShareLinkModalProps) {
       </p>
       <div className={styles.inputWrapper}>
         <input readOnly type="text" value={url} />
-        <button onClick={() => copy(url)}>
+        <button aria-label="Copy share link" onClick={() => copy(url)}>
           {copying ? <IoCheckmark /> : <IoCopyOutline />}
         </button>
       </div>

@@ -47,7 +47,7 @@ export function Tooltip({
     top: slideY(5),
   }[side];
 
-  const variants = mix(fade(), slide!);
+  const variants = mix(fade(), slide);
 
   return (
     <TooltipPrimitive.Root open={isOpen} onOpenChange={o => setIsOpen(o)}>

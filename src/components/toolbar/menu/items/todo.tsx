@@ -1,4 +1,4 @@
-import { MdTaskAlt } from 'react-icons/md/index';
+import { MdTaskAlt } from 'react-icons/md';
 
 import { Item } from '../item';
 

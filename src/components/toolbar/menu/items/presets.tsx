@@ -1,4 +1,4 @@
-import { RiPlayListFill } from 'react-icons/ri/index';
+import { RiPlayListFill } from 'react-icons/ri';
 
 import { Item } from '../item';
 

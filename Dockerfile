@@ -1,23 +1,22 @@
-FROM docker.io/node:20-alpine3.18 AS build
+FROM docker.io/node:22-alpine AS build
 
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm@latest-10
+ENV HUSKY=0
 
-# Copy dependency files
-COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm@11.10.0
+
+# Copy dependency and pnpm policy files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy rest of the project
 COPY . .
 
-# Build the app
 RUN pnpm run build
 
-FROM docker.io/caddy:latest
+FROM docker.io/caddy:2-alpine
 
 COPY ./Caddyfile /etc/caddy/Caddyfile
 COPY --from=build /app/dist /var/www/html

@@ -6,11 +6,18 @@ import { places } from './sounds/places';
 import { transport } from './sounds/transport';
 import { things } from './sounds/things';
 import { noise } from './sounds/noise';
+import { generators } from './sounds/generators';
 
 import type { Categories } from './types';
 
-export const sounds: {
-  categories: Categories;
-} = {
-  categories: [nature, rain, animals, urban, places, transport, things, noise],
-};
+export const bundledCategories: Categories = [
+  nature,
+  rain,
+  animals,
+  urban,
+  places,
+  transport,
+  things,
+  noise,
+  generators,
+];

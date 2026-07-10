@@ -1,4 +1,4 @@
-import { IoIosMusicalNote } from 'react-icons/io/index';
+import { IoIosMusicalNote } from 'react-icons/io';
 
 import { Item } from '../item';
 

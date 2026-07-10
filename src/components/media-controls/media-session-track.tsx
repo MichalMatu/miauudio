@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import { BrowserDetect } from '@/helpers/browser-detect';
+import { APP_NAME } from '@/constants/app';
+import { isSafari } from '@/helpers/browser-detect';
 
 import { useSoundStore } from '@/stores/sound';
 
@@ -8,8 +9,8 @@ import { useSSR } from '@/hooks/use-ssr';
 import { useDarkTheme } from '@/hooks/use-dark-theme';
 
 const metadata: MediaMetadataInit = {
-  artist: 'Moodist',
-  title: 'Ambient Sounds for Focus and Calm',
+  artist: APP_NAME,
+  title: 'Ambient Sounds for Focus and Sleep',
 };
 
 export function MediaSessionTrack() {
@@ -57,7 +58,7 @@ export function MediaSessionTrack() {
      * Otherwise in Safari we cannot play the audio again
      * through the media session controls
      */
-    if (BrowserDetect.isSafari()) {
+    if (isSafari()) {
       masterAudioSoundRef.current.load();
     } else {
       masterAudioSoundRef.current.pause();

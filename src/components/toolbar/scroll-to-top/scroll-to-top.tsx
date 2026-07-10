@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BiUpArrowAlt } from 'react-icons/bi/index';
+import { BiUpArrowAlt } from 'react-icons/bi';
 import { motion } from 'motion/react';
 
 import { mix, fade, slideY } from '@/lib/motion';

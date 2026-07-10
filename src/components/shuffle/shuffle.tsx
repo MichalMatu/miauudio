@@ -1,12 +1,12 @@
-import { BiShuffle } from 'react-icons/bi/index';
+import { BiShuffle } from 'react-icons/bi';
 
 import { Tooltip } from '@/components/tooltip';
-import { useSoundStore } from '@/stores/sound';
+import { useShuffleSounds } from '@/hooks/use-shuffle-sounds';
 
 import styles from './shuffle.module.css';
 
 export function Shuffle() {
-  const shuffle = useSoundStore(state => state.shuffle);
+  const shuffle = useShuffleSounds();
 
   return (
     <Tooltip.Provider delayDuration={0}>

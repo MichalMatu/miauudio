@@ -8,6 +8,12 @@ import { FADE_OUT } from '@/constants/events';
 
 const DEFAULT_FADE_DURATION = 250;
 
+interface NavigatorWithAudioSession extends Navigator {
+  audioSession?: {
+    type: string;
+  };
+}
+
 /**
  * A custom React hook to manage sound playback using Howler.js with additional features.
  *
@@ -54,9 +60,9 @@ export function useSound(
         src: src,
       });
 
-      if (window.navigator.audioSession) {
-        window.navigator.audioSession.type = 'playback';
-      }
+      const { audioSession } = window.navigator as NavigatorWithAudioSession;
+
+      if (audioSession) audioSession.type = 'playback';
     }
 
     return sound;
@@ -174,8 +180,16 @@ export function useSound(
   }, [fadeOut]);
 
   useEffect(() => {
-    return () => clearFadeTimeout();
-  }, [clearFadeTimeout]);
+    return () => {
+      clearFadeTimeout();
+      if (!sound) return;
+
+      sound.off();
+      sound.stop();
+      sound.unload();
+      setIsLoading(src, false);
+    };
+  }, [clearFadeTimeout, setIsLoading, sound, src]);
 
   const control = useMemo(
     () => ({ fadeOut, isLoading, pause, play, stop }),

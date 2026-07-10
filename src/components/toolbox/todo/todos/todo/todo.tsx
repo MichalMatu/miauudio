@@ -1,4 +1,4 @@
-import { FaRegTrashAlt } from 'react-icons/fa/index';
+import { FaRegTrashAlt } from 'react-icons/fa';
 
 import { Checkbox } from '@/components/checkbox';
 

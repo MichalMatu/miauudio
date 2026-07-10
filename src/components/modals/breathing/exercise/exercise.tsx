@@ -1,12 +1,23 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'motion/react';
 
+import { Select, type SelectOption } from '@/components/select';
 import { padNumber } from '@/helpers/number';
 
 import styles from './exercise.module.css';
 
-type Exercise = 'Box Breathing' | 'Resonant Breathing' | '4-7-8 Breathing';
+const EXERCISES = [
+  '4-7-8 Breathing',
+  'Box Breathing',
+  'Resonant Breathing',
+] as const;
+
+type Exercise = (typeof EXERCISES)[number];
 type Phase = 'inhale' | 'exhale' | 'holdInhale' | 'holdExhale';
+
+const EXERCISE_OPTIONS: ReadonlyArray<SelectOption<Exercise>> = EXERCISES.map(
+  exercise => ({ label: exercise, value: exercise }),
+);
 
 const EXERCISE_PHASES: Record<Exercise, Phase[]> = {
   '4-7-8 Breathing': ['inhale', 'holdInhale', 'exhale'],
@@ -108,19 +119,13 @@ export function Exercise() {
         <p className={styles.phase}>{PHASE_LABELS[currentPhase]}</p>
       </div>
 
-      <div className={styles.selectWrapper}>
-        <select
-          className={styles.selectBox}
-          value={selectedExercise}
-          onChange={e => setSelectedExercise(e.target.value as Exercise)}
-        >
-          {Object.keys(EXERCISE_PHASES).map(exercise => (
-            <option key={exercise} value={exercise}>
-              {exercise}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Select
+        ariaLabel="Breathing exercise"
+        className={styles.select}
+        options={EXERCISE_OPTIONS}
+        value={selectedExercise}
+        onValueChange={setSelectedExercise}
+      />
     </>
   );
 }

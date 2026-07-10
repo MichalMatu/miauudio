@@ -1,6 +1,10 @@
-# Contributing Guidelines
+# Contributing to Miauudio
 
-Thank you for considering contributing to our project! We welcome your contributions.
+Thank you for contributing.
+
+Read [README.md](README.md), [docs/ANDROID.md](docs/ANDROID.md), and
+[AUDIO_LICENSES.md](AUDIO_LICENSES.md) before changing native code or bundled
+audio.
 
 ## How to Contribute
 
@@ -11,6 +15,21 @@ Thank you for considering contributing to our project! We welcome your contribut
 5. Submit a pull request. ⚡
 
 ⚠️ **Notice**: Commit messages should follow [Conventional Commits Specification](https://www.conventionalcommits.org/en/v1.0.0/).
+
+## Before submitting
+
+Run:
+
+```bash
+pnpm check
+pnpm typecheck
+pnpm build
+pnpm build:native
+pnpm android:apk
+```
+
+Do not commit generated build output, copied Capacitor assets, APK/AAB files,
+local Android SDK paths, signing keys, or private audio-license evidence.
 
 ## Report Bugs
 
