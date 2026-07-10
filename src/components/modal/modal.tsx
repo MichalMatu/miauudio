@@ -70,7 +70,7 @@ export function Modal({
 
   const content = (
     <FocusTrap active={show}>
-      <div data-app-layer={show ? 'open' : undefined}>
+      <div data-app-layer={show ? 'open' : undefined} data-modal-root>
         <motion.div
           {...animationProps}
           className={styles.overlay}

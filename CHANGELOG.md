@@ -30,6 +30,10 @@ All notable Miauudio changes will be documented in this file.
 
 - Prevented safe-area layout shifts when opening menus and dialogs.
 - Smoothed favorite-card removal and Favorites-section reflow.
+- Replaced Android system-style select pickers with one accessible Miauudio
+  selection menu in generator settings and breathing exercises.
+- Aligned WebView controls, native Android theme, system bars, and safe-area
+  fallbacks with the application's dark-only interface.
 
 The inherited release history is preserved in
 [docs/UPSTREAM_CHANGELOG.md](docs/UPSTREAM_CHANGELOG.md).

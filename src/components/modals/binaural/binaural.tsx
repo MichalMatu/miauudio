@@ -1,7 +1,7 @@
-import type { ChangeEvent } from 'react';
-
 import { Modal } from '@/components/modal';
+import { Select } from '@/components/select';
 import {
+  GENERATOR_PRESET_OPTIONS,
   GENERATOR_PRESETS,
   useGeneratorStore,
   type GeneratorPresetId,
@@ -18,9 +18,7 @@ export function BinauralModal({ onClose, show }: BinauralProps) {
   const settings = useGeneratorStore(state => state.settings.binaural);
   const setSettings = useGeneratorStore(state => state.setSettings);
 
-  const handlePresetChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const presetId = event.target.value as GeneratorPresetId;
-
+  const handlePresetChange = (presetId: GeneratorPresetId) => {
     if (presetId === 'custom') {
       setSettings('binaural', { preset: 'custom' });
       return;
@@ -46,17 +44,17 @@ export function BinauralModal({ onClose, show }: BinauralProps) {
       </header>
 
       <div className={styles.fieldWrapper}>
-        <label>
+        <label className={styles.fieldLabel} htmlFor="binaural-preset">
           Preset
-          <select value={settings.preset} onChange={handlePresetChange}>
-            {GENERATOR_PRESETS.map(preset => (
-              <option key={preset.id} value={preset.id}>
-                {preset.label}
-              </option>
-            ))}
-            <option value="custom">Custom</option>
-          </select>
         </label>
+        <Select
+          ariaLabel="Binaural preset"
+          className={styles.select}
+          id="binaural-preset"
+          options={GENERATOR_PRESET_OPTIONS}
+          value={settings.preset}
+          onValueChange={handlePresetChange}
+        />
       </div>
 
       {settings.preset === 'custom' && (

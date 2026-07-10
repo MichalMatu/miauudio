@@ -11,7 +11,8 @@ own build target, adaptive icon, splash screen, safe-area handling, and system
 Back-button integration. Binaural beat and isochronic tone generators are
 available as regular mixer layers and use the same playback, volume, favorite,
 preset, and sleep-timer controls as bundled sounds. Web shared mixes also
-preserve generator settings.
+preserve generator settings. The interface currently uses a deliberate
+dark-only color scheme.
 
 Before a public or paid release, the project still needs:
 

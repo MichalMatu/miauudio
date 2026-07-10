@@ -1,7 +1,7 @@
-import type { ChangeEvent } from 'react';
-
 import { Modal } from '@/components/modal';
+import { Select } from '@/components/select';
 import {
+  GENERATOR_PRESET_OPTIONS,
   GENERATOR_PRESETS,
   useGeneratorStore,
   type GeneratorPresetId,
@@ -18,9 +18,7 @@ export function IsochronicModal({ onClose, show }: IsochronicProps) {
   const settings = useGeneratorStore(state => state.settings.isochronic);
   const setSettings = useGeneratorStore(state => state.setSettings);
 
-  const handlePresetChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const presetId = event.target.value as GeneratorPresetId;
-
+  const handlePresetChange = (presetId: GeneratorPresetId) => {
     if (presetId === 'custom') {
       setSettings('isochronic', { preset: 'custom' });
       return;
@@ -46,17 +44,17 @@ export function IsochronicModal({ onClose, show }: IsochronicProps) {
       </header>
 
       <div className={styles.fieldWrapper}>
-        <label>
+        <label className={styles.fieldLabel} htmlFor="isochronic-preset">
           Preset
-          <select value={settings.preset} onChange={handlePresetChange}>
-            {GENERATOR_PRESETS.map(preset => (
-              <option key={preset.id} value={preset.id}>
-                {preset.label}
-              </option>
-            ))}
-            <option value="custom">Custom</option>
-          </select>
         </label>
+        <Select
+          ariaLabel="Isochronic preset"
+          className={styles.select}
+          id="isochronic-preset"
+          options={GENERATOR_PRESET_OPTIONS}
+          value={settings.preset}
+          onValueChange={handlePresetChange}
+        />
       </div>
 
       {settings.preset === 'custom' && (

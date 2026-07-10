@@ -6,6 +6,7 @@
 - Application ID: `io.github.michalmatu.soundscape`
 - Minimum Android version: API 24
 - Compile and target SDK: API 36
+- Interface color scheme: dark-only
 
 The display name can change independently of the application ID. The
 application ID should remain stable after the first published build.

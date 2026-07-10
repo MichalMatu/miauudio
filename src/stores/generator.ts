@@ -38,6 +38,17 @@ export const GENERATOR_PRESETS: ReadonlyArray<GeneratorPreset> = [
   { baseFrequency: 100, beatFrequency: 40, id: 'gamma', label: 'Gamma' },
 ];
 
+export const GENERATOR_PRESET_OPTIONS: ReadonlyArray<{
+  label: string;
+  value: GeneratorPresetId;
+}> = [
+  ...GENERATOR_PRESETS.map(preset => ({
+    label: preset.label,
+    value: preset.id,
+  })),
+  { label: 'Custom', value: 'custom' },
+];
+
 const DEFAULT_SETTINGS: GeneratorSettings = {
   baseFrequency: 100,
   beatFrequency: 10,
