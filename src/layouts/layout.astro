@@ -41,7 +41,9 @@ const description = Astro.props.description || APP_DESCRIPTION;
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
   </head>
   <body>
-    <slot />
+    <div class="app-shell">
+      <slot />
+    </div>
 
     {!IS_NATIVE_APP && <Reload client:load />}
   </body>

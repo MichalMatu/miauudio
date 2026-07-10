@@ -20,5 +20,9 @@ All notable Miauudio changes will be documented in this file.
 - Renamed browser-storage keys to the Miauudio namespace. Existing local
   Moodist prototype data is not migrated.
 
+### Fixed
+
+- Prevented safe-area layout shifts when opening menus and dialogs.
+
 The inherited release history is preserved in
 [docs/UPSTREAM_CHANGELOG.md](docs/UPSTREAM_CHANGELOG.md).

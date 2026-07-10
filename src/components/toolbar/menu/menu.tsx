@@ -103,7 +103,7 @@ export function Menu() {
         className={styles.wrapper}
         data-app-layer={isOpen ? 'open' : undefined}
       >
-        <DropdownMenu.Root open={isOpen} onOpenChange={o => setIsOpen(o)}>
+        <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
           <DropdownMenu.Trigger asChild>
             <button aria-label="Menu" className={styles.menuButton}>
               {isOpen ? <IoClose /> : <IoMenu />}
