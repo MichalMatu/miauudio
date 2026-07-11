@@ -1,4 +1,4 @@
-package io.github.michalmatu.soundscape.audio;
+package io.github.michalmatu.miauudio.audio;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,8 +6,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 final class AudioEventBroadcaster {
-    static final String ACTION_STATE_CHANGED = "io.github.michalmatu.soundscape.audio.STATE_CHANGED";
-    static final String ACTION_LAYER_ERROR = "io.github.michalmatu.soundscape.audio.LAYER_ERROR";
+    static final String ACTION_STATE_CHANGED = "io.github.michalmatu.miauudio.audio.STATE_CHANGED";
+    static final String ACTION_LAYER_ERROR = "io.github.michalmatu.miauudio.audio.LAYER_ERROR";
     static final String EXTRA_PAYLOAD = "payload";
 
     private final Context context;

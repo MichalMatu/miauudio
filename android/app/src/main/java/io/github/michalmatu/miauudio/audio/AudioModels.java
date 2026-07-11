@@ -1,4 +1,4 @@
-package io.github.michalmatu.soundscape.audio;
+package io.github.michalmatu.miauudio.audio;
 
 import androidx.annotation.Nullable;
 import java.util.ArrayList;

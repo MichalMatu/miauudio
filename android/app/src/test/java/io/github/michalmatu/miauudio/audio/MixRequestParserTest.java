@@ -1,4 +1,4 @@
-package io.github.michalmatu.soundscape.audio;
+package io.github.michalmatu.miauudio.audio;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;

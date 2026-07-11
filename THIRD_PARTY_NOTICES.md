@@ -11,9 +11,10 @@ notice and complete license text are preserved in the repository's
 `LICENSE` file and must remain in distributions containing substantial
 portions of that code.
 
-The current flower-shaped logo also originates from the Moodist base. It is a
-temporary prototype asset and should be replaced by an original Miauudio mark
-before commercial publication.
+The current flower-shaped logo also originates from the Moodist base. Miauudio
+retains it, together with this attribution and the upstream MIT notice, for the
+closed beta and initial free release. It remains a temporary brand asset; it
+will be replaced only when a considered original Miauudio mark is ready.
 
 ## Audio
 

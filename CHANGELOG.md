@@ -17,6 +17,12 @@ All notable Miauudio changes will be documented in this file.
 ### Changed
 
 - Adopted Miauudio as the product name.
+- Changed the Android application ID and native Java package to
+  `io.github.michalmatu.miauudio` before the first Play release.
+- Recorded the reviewed bundled audio set as approved for Miauudio releases
+  and replaced the open-ended roadmap with a staged beta and launch plan.
+- Confirmed the initial free, English-only Android/PWA direction and made
+  user-created ambient scenes the first post-beta product improvement.
 - Updated the inherited Astro, PWA, and icon build toolchain.
 - Removed Moodist-specific donation and marketing UI from the product.
 - Reworked the generator dialogs into settings-only views; playback is now

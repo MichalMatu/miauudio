@@ -1,4 +1,4 @@
-package io.github.michalmatu.soundscape.audio;
+package io.github.michalmatu.miauudio.audio;
 
 import android.content.Context;
 import android.content.Intent;

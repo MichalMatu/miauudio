@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.github.michalmatu.soundscape',
+  appId: 'io.github.michalmatu.miauudio',
   appName: 'Miauudio',
   plugins: {
     SystemBars: {

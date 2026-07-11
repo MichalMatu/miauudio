@@ -3,7 +3,7 @@
 ## Application identity
 
 - Display name: `Miauudio`
-- Application ID: `io.github.michalmatu.soundscape`
+- Application ID: `io.github.michalmatu.miauudio`
 - Minimum Android version: API 24
 - Compile and target SDK: API 36
 - Interface color scheme: dark-only

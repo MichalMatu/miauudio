@@ -1,4 +1,4 @@
-package io.github.michalmatu.soundscape.audio;
+package io.github.michalmatu.miauudio.audio;
 
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -10,7 +10,7 @@ import androidx.media3.session.MediaSessionService;
 
 @OptIn(markerClass = UnstableApi.class)
 public final class MiauudioPlaybackService extends MediaSessionService implements MixPlayer.Listener {
-    static final String ACTION_INITIALIZE = "io.github.michalmatu.soundscape.audio.INITIALIZE";
+    static final String ACTION_INITIALIZE = "io.github.michalmatu.miauudio.audio.INITIALIZE";
 
     private MixPlayer player;
     private MediaSession mediaSession;

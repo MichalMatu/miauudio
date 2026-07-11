@@ -1,43 +1,36 @@
-# Audio license registry
+# Audio usage registry
 
-## Current status
+## Current decision
 
-The audio currently stored under `public/sounds/` was inherited from the
-Moodist prototype base. Its per-file origin and redistribution proof have not
-yet been reconstructed in this repository. It is therefore treated as
-development-only content and is not approved for a paid Miauudio release.
+The bundled audio library currently stored under `public/sounds/` has been
+reviewed and is approved for use in Miauudio builds and releases. The project
+owner confirmed this decision on 2026-07-11 after completing the audio review.
 
-The upstream Moodist documentation identifies two general source-license
-families:
+This approval covers the exact library present at Git revision `ba22c7e`:
 
-- [Pixabay Content License](https://pixabay.com/service/license-summary/)
-- [Creative Commons CC0](https://creativecommons.org/publicdomain/zero/1.0/)
+- 86 files in total;
+- 82 MP3 files and 4 WAV files;
+- the 84 catalogue sounds plus `alarm.mp3` and `silence.wav`.
 
-Those general references do not replace a per-file audit.
+The approved library may be bundled with the planned Android and web/PWA
+releases. Audio clearance is therefore not an open release blocker.
 
-## Required record
+## Evidence handling
 
-Add one entry for every sound before it is included in a release:
+This file records the project's release decision. Source pages, receipts, or
+other license evidence that contain private information should be retained
+outside the public repository. They can be referenced here without committing
+the private files themselves.
 
-```yaml
-id: rain_light_01
-file: public/sounds/rain/rain_light_01.mp3
-title: Light Rain
-author: Example Author
-source: https://example.com/original-item
-license: Example commercial license
-proof: private/licenses/invoice-or-license.pdf
-commercial_app_allowed: yes
-redistribution_as_audio_file_allowed: yes
-verified_on: 2026-07-10
-notes: Loop edited from the purchased source.
-```
+## Change control
 
-Proof files may contain private data and should not be committed. Store them
-securely outside the public repository and reference their internal location.
+The approval above does not automatically apply to audio added or replaced
+after the recorded revision. Before a new or modified file ships:
 
-## Release rule
+1. verify that its terms allow its intended use and distribution in Miauudio;
+2. retain the supporting source or license evidence;
+3. update this registry with the file path, review date, and approval scope.
 
-No sound may be marked release-ready when its source, author, license, and
-proof are missing or when the license prohibits soundboards, standalone audio
-redistribution, or paid applications.
+Removing, renaming, or losslessly reorganizing an already approved file does
+not require a new rights review, but the registry scope should remain
+traceable.
