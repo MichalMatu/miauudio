@@ -51,14 +51,23 @@ offline. CI checks the committed notices, and the native privacy-policy link
 opens in a Capacitor Browser custom tab instead of navigating the app WebView.
 
 Android release versioning, signing inputs, signed-AAB verification, and a
-manual release workflow are configured. The production upload key still needs
-to be provisioned and backed up; no final signed AAB has been created or
-uploaded to Play Console. The Play listing, policy answers, and privacy policy
-are prepared as drafts, with candidate icon and feature graphics. Real
-release-candidate screenshots, the foreground-service demonstration video, and
-final Play Console submission are pending. The public support email is
-`meehow939@gmail.com`; repository Issues are disabled and are not presented as
-a working support route.
+manual release workflow are configured. The production upload key has been
+created locally outside the repository under `~/.android`, its passwords are in
+macOS Keychain, and its public certificate has been exported. Off-device key
+backup and the protected GitHub environment secrets remain pending. A final
+signed AAB for version 0.1.0 (1000) was built and cryptographically verified:
+
+- AAB SHA-256: `dcfe05ea5b5fe61b8a31bebccef25bdbc0ea9ffc43914a49ff9ed9543a2ef983`;
+- signer certificate SHA-256:
+  `70:71:A2:5C:09:54:B6:A3:34:BD:77:13:88:FA:7E:37:D1:2C:26:CA:7C:C6:59:44:E9:FA:72:C1:FD:47:D9:23`.
+
+The AAB has not been uploaded to or validated by Play Console. The Play listing
+and policy answers remain drafts, with candidate icon and feature graphics. The
+public privacy policy is published from `main` and has returned HTTP 200 without
+authentication. Real release-candidate screenshots, the foreground-service
+demonstration video, and final Play Console submission are pending. The public
+support email is `meehow939@gmail.com`; repository Issues are disabled and are
+not presented as a working support route.
 
 A short debug-build smoke test on a physical Samsung device running Android
 API 36 passed playback, foreground-service/media-notification visibility,
@@ -79,7 +88,8 @@ confirmation.
 
 Before a public Play release, the project still needs:
 
-- a provisioned production upload key and a final signed AAB uploaded to Play;
+- an off-device upload-key backup and protected GitHub environment secrets;
+- upload and Play pre-review of the verified signed AAB;
 - completed, recorded long-session, interruption, and multi-device tests;
 - real release screenshots and finalized Play forms;
 - successful internal and closed Play test tracks.

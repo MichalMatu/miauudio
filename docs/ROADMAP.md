@@ -121,10 +121,14 @@ evidence:
    matrix, call/audio-focus,
    Bluetooth/wired-output, deletion, unsupported/disappearing-file, and
    low-storage scenarios are still pending.
-2. Provision and safely back up the production upload key, configure the
-   protected workflow secrets, and run the existing release checks to produce
-   the final signed AAB. The release configuration is complete, but the
-   production key and final artifact do not yet exist.
+2. Complete release credential hardening. The production upload key now exists
+   locally outside the repository under `~/.android`, its passwords are stored
+   in macOS Keychain, and its public certificate has been exported. A final
+   signed 0.1.0 (1000) AAB passed local build, archive-integrity, and signature
+   checks, while its source commit passed web and Android CI. Its SHA-256 is
+   `dcfe05ea5b5fe61b8a31bebccef25bdbc0ea9ffc43914a49ff9ed9543a2ef983`.
+   A verified off-device key backup and protected GitHub environment secrets
+   are still pending.
 3. Upload the final AAB to Play Console internal testing and complete its
    pre-review checks. No production release artifact has been uploaded yet.
 4. Finalize the draft Play pack with real captures from the release candidate,

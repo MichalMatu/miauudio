@@ -183,8 +183,15 @@ pnpm android:assets
 
 ## Release signing and Play App Signing
 
-The private upload key must live outside Git. Generate it once with the JDK,
-store it in a password manager-backed location, and keep an offline backup:
+The production upload key has been generated locally outside Git under
+`~/.android`. Its passwords are stored in macOS Keychain, and its public
+certificate has been exported. An off-device backup of the private key and the
+protected GitHub `google-play` environment secrets are still pending. Do not
+generate a replacement key merely to repeat a build; first complete and verify
+the backup of this key.
+
+The private upload key must remain outside Git. The original JDK generation
+workflow is:
 
 ```bash
 keytool -genkeypair -v \
@@ -232,6 +239,18 @@ base64 -i "$HOME/.android/miauudio-upload.jks" | tr -d '\n'
 The workflow restores the keystore only in the ephemeral runner, executes
 `pnpm android:release:check`, cryptographically verifies the bundle, records
 its SHA-256 checksum, and uploads the AAB as a 14-day workflow artifact.
+
+A final signed AAB for version 0.1.0 (1000) has been built locally. Its ZIP/JAR
+integrity and cryptographic signature were verified, while the same source
+commit passed the web and Android CI test/lint/build gates. Its identifiers are:
+
+- AAB SHA-256:
+  `dcfe05ea5b5fe61b8a31bebccef25bdbc0ea9ffc43914a49ff9ed9543a2ef983`;
+- signer certificate SHA-256:
+  `70:71:A2:5C:09:54:B6:A3:34:BD:77:13:88:FA:7E:37:D1:2C:26:CA:7C:C6:59:44:E9:FA:72:C1:FD:47:D9:23`.
+
+This artifact has not yet been uploaded to Play Console or passed Play
+pre-review checks.
 
 Environment variables override individual values from `signing.properties`.
 Release artifact tasks stop with a clear error when any value is absent or the
@@ -321,13 +340,15 @@ Before distributing a beta or release candidate, verify:
 Background playback is implemented, but it still needs long-running tests on
 several Android versions and manufacturers, including devices with aggressive
 battery restrictions. The repeatable signed-AAB build is configured, but the
-owner still needs to provision and back up the upload key. Play Console
-configuration, real release screenshots, the foreground-service demonstration
-video, submission of the prepared policy forms, and closed testing remain to be
-completed. The public support email is `meehow939@gmail.com`. Repository Issues
-are disabled and no Issues URL is presented as a working support route. Draft
-copy and answers are in `GOOGLE_PLAY.md`, and the execution matrix is in
-`DEVICE_TEST_PLAN.md`.
+provisioned upload key still needs a verified off-device backup and the GitHub
+environment secrets still need configuration. The final 0.1.0 (1000) AAB has
+passed its local build, integrity, and signature checks, while the same commit
+passed CI. Play Console upload, pre-review, real release
+screenshots, the foreground-service demonstration video, submission of the
+prepared policy forms, and closed testing remain to be completed. The public
+support email is `meehow939@gmail.com`. Repository Issues are disabled and no
+Issues URL is presented as a working support route. Draft copy and answers are
+in `GOOGLE_PLAY.md`, and the execution matrix is in `DEVICE_TEST_PLAN.md`.
 
 Presets, settings, notes, todos, and mixer preferences remain in WebView
 `localStorage`; imported audio and its metadata use Android private storage.

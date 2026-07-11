@@ -24,10 +24,22 @@ against the exact AAB uploaded to Play Console.
 
 The privacy policy is also available inside the app under
 `About & Privacy`. Replace the GitHub privacy URL with the deployed PWA route
-when a stable public web origin is available. The repository is public, but
-GitHub Pages is not currently configured; the temporary GitHub file URL will
-remain a 404 until this policy file is committed and pushed. Verify an
-unauthenticated HTTP 200 response before entering any URL in Play Console.
+when a stable public web origin is available. The current GitHub policy URL on
+`main` was verified to return HTTP 200 without authentication on 2026-07-11.
+
+## Prepared release artifact
+
+- Version name/code: 0.1.0 (1000)
+- AAB SHA-256:
+  `dcfe05ea5b5fe61b8a31bebccef25bdbc0ea9ffc43914a49ff9ed9543a2ef983`
+- Signer certificate SHA-256:
+  `70:71:A2:5C:09:54:B6:A3:34:BD:77:13:88:FA:7E:37:D1:2C:26:CA:7C:C6:59:44:E9:FA:72:C1:FD:47:D9:23`
+- Local signed build, archive integrity, and signature verification: Passed
+- Web and Android CI for the source commit: Passed
+- Play Console upload and pre-review: Pending
+
+The production upload key exists locally outside the repository. Its off-device
+backup and the protected GitHub environment secrets remain pending.
 
 ## Main store listing
 
@@ -284,8 +296,10 @@ the opt-in URL.
 - [x] A working email support destination is configured; no disabled Issues
   link is submitted.
 - [ ] Developer name and contact in Play Console match the privacy policy.
-- [ ] Final signed AAB passes the release checks and Play pre-review checks.
-- [ ] Privacy policy is pushed and accessible without login.
+- [x] Final signed AAB passes local build, archive-integrity, and signature
+  checks; its source commit passes web and Android CI.
+- [ ] Exact verified AAB is uploaded and passes Play pre-review checks.
+- [x] Privacy policy is pushed and accessible without login (HTTP 200 verified).
 - [ ] Data Safety answers are copied and reviewed against the final AAB.
 - [ ] Health Apps declaration is reviewed and submitted with the relaxation
   category and non-medical disclaimer.
