@@ -12,7 +12,7 @@ export default defineConfig({
       disable: isNativeBuild,
       manifest: {
         background_color: '#09090b',
-        description: 'Ambient sounds for focus, rest, and sleep.',
+        description: 'Create personal ambient scenes for focus and relaxation.',
         display: 'standalone',
         icons: [
           ...[72, 128, 144, 152, 192, 256, 512].map(size => ({
@@ -30,9 +30,31 @@ export default defineConfig({
       },
       registerType: 'prompt',
       workbox: {
+        cleanupOutdatedCaches: true,
+        globIgnores: ['sounds/**/*'],
         globPatterns: ['**/*'],
-        maximumFileSizeToCacheInBytes: Number.MAX_SAFE_INTEGER,
-        navigateFallback: '/',
+        maximumFileSizeToCacheInBytes: 2 * 1024 * 1024,
+        navigateFallback: undefined,
+        runtimeCaching: [
+          {
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'miauudio-audio-v1',
+              cacheableResponse: {
+                statuses: [200],
+              },
+              expiration: {
+                maxAgeSeconds: 30 * 24 * 60 * 60,
+                maxEntries: 24,
+                purgeOnQuotaError: true,
+              },
+              rangeRequests: true,
+            },
+            urlPattern: ({ url }) =>
+              url.origin === self.location.origin &&
+              url.pathname.startsWith('/sounds/'),
+          },
+        ],
       },
     }),
   ],

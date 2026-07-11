@@ -16,8 +16,13 @@ final class AudioServiceBridge {
         void run(MiauudioPlaybackService service);
     }
 
+    interface Failure {
+        void run(RuntimeException error);
+    }
+
+    private static final long SERVICE_ATTACH_TIMEOUT_MS = 5_000;
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
-    private static final Queue<Command> PENDING = new ArrayDeque<>();
+    private static final Queue<PendingCommand> PENDING = new ArrayDeque<>();
     private static WeakReference<MiauudioPlaybackService> serviceReference = new WeakReference<>(null);
     private static volatile AudioModels.PlaybackSnapshot lastSnapshot = new AudioModels.PlaybackSnapshot(
         "inactive",
@@ -38,27 +43,52 @@ final class AudioServiceBridge {
             return;
         }
         serviceReference = new WeakReference<>(service);
-        Command command;
-        while ((command = PENDING.poll()) != null) command.run(service);
+        PendingCommand pending;
+        while ((pending = PENDING.poll()) != null) run(pending, service);
     }
 
     static void detach(MiauudioPlaybackService service) {
         if (serviceReference.get() == service) serviceReference.clear();
     }
 
-    static void dispatch(Context context, boolean foreground, Command command) {
+    static void dispatch(Context context, boolean foreground, Command command, Failure failure) {
         MAIN.post(() -> {
             MiauudioPlaybackService service = serviceReference.get();
             if (service != null) {
-                command.run(service);
+                run(new PendingCommand(command, failure), service);
                 return;
             }
-            PENDING.add(command);
+
+            PendingCommand pending = new PendingCommand(command, failure);
+            pending.timeout = () -> {
+                if (PENDING.remove(pending)) {
+                    pending.failure.run(new IllegalStateException("Native audio service did not start in time"));
+                }
+            };
+            PENDING.add(pending);
+            MAIN.postDelayed(pending.timeout, SERVICE_ATTACH_TIMEOUT_MS);
+
             Intent intent = new Intent(context.getApplicationContext(), MiauudioPlaybackService.class)
                 .setAction(MiauudioPlaybackService.ACTION_INITIALIZE);
-            if (foreground) ContextCompat.startForegroundService(context.getApplicationContext(), intent);
-            else context.getApplicationContext().startService(intent);
+            try {
+                if (foreground) ContextCompat.startForegroundService(context.getApplicationContext(), intent);
+                else context.getApplicationContext().startService(intent);
+            } catch (RuntimeException error) {
+                if (PENDING.remove(pending)) {
+                    MAIN.removeCallbacks(pending.timeout);
+                    pending.failure.run(error);
+                }
+            }
         });
+    }
+
+    private static void run(PendingCommand pending, MiauudioPlaybackService service) {
+        if (pending.timeout != null) MAIN.removeCallbacks(pending.timeout);
+        try {
+            pending.command.run(service);
+        } catch (RuntimeException error) {
+            pending.failure.run(error);
+        }
     }
 
     static void withCurrentService(Command command, Runnable unavailable) {
@@ -79,5 +109,16 @@ final class AudioServiceBridge {
 
     static void setLastSnapshot(AudioModels.PlaybackSnapshot snapshot) {
         lastSnapshot = snapshot;
+    }
+
+    private static final class PendingCommand {
+        final Command command;
+        final Failure failure;
+        @Nullable Runnable timeout;
+
+        PendingCommand(Command command, Failure failure) {
+            this.command = command;
+            this.failure = failure;
+        }
     }
 }

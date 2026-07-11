@@ -12,10 +12,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import org.json.JSONArray;
@@ -28,6 +31,16 @@ final class ImportedSoundRepository {
     private static final String DIRECTORY = "user-sounds";
     private static final String PREFS = "miauudio-imported-sounds";
     private static final String MANIFEST = "manifest-v1";
+    private static final String DELETE_MARKER = ".delete-";
+    private static final String PART_MARKER = ".part";
+    private static final Pattern UUID_VALUE = Pattern.compile(
+        "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        Pattern.CASE_INSENSITIVE
+    );
+    private static final Pattern IMPORTED_FILE_ID = Pattern.compile(
+        "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?:\\.(?:mp3|m4a|aac|wav|ogg|opus|flac))?$",
+        Pattern.CASE_INSENSITIVE
+    );
     private static final Pattern USER_SOUND_ID = Pattern.compile(
         "^user-[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
         Pattern.CASE_INSENSITIVE
@@ -46,12 +59,21 @@ final class ImportedSoundRepository {
     synchronized List<AudioModels.ImportedSound> list() {
         List<AudioModels.ImportedSound> sounds = loadManifest();
         List<AudioModels.ImportedSound> existing = new ArrayList<>(sounds.size());
+        List<AudioModels.ImportedSound> retained = new ArrayList<>(sounds.size());
         boolean changed = false;
         for (AudioModels.ImportedSound sound : sounds) {
-            if (fileFor(sound.fileId).isFile()) existing.add(sound);
-            else changed = true;
+            if (fileFor(sound.fileId).isFile()) {
+                existing.add(sound);
+                retained.add(sound);
+            } else if (hasDeleteTombstone(directory, sound.fileId)) {
+                // Recovery may fail transiently. Keep the metadata while the tombstone is the
+                // only private copy, but do not expose an unresolvable sound to the caller.
+                retained.add(sound);
+            } else {
+                changed = true;
+            }
         }
-        if (changed) saveManifest(existing);
+        if (changed) saveManifest(retained);
         return Collections.unmodifiableList(existing);
     }
 
@@ -80,18 +102,12 @@ final class ImportedSoundRepository {
         String fileId = UUID.randomUUID().toString() + extension;
         File temporary = new File(directory, "." + fileId + ".part" + extension);
         File destination = fileFor(fileId);
-        long copied = 0;
+        long copied;
 
         try (InputStream input = resolver.openInputStream(uri)) {
             if (input == null) throw new IOException("The selected file could not be opened");
             try (FileOutputStream output = new FileOutputStream(temporary)) {
-                byte[] buffer = new byte[64 * 1024];
-                int read;
-                while ((read = input.read(buffer)) != -1) {
-                    copied += read;
-                    if (copied > MAX_IMPORT_BYTES) throw new IOException("The selected file is larger than 200 MB");
-                    output.write(buffer, 0, read);
-                }
+                copied = copyWithLimit(input, output, MAX_IMPORT_BYTES);
                 output.getFD().sync();
             }
 
@@ -152,17 +168,50 @@ final class ImportedSoundRepository {
         for (int index = 0; index < sounds.size(); index++) {
             AudioModels.ImportedSound removed = sounds.get(index);
             if (!removed.id.equals(id)) continue;
-            sounds.remove(index);
-            if (!saveManifest(sounds)) throw new IOException("Could not update imported sound metadata");
+
             File file = fileFor(removed.fileId);
-            if (file.exists() && !file.delete()) {
-                sounds.add(index, removed);
-                saveManifest(sounds);
-                throw new IOException("Could not delete the imported sound file");
+            File tombstone = new File(directory, "." + removed.fileId + ".delete-" + UUID.randomUUID());
+            boolean staged = false;
+            if (file.exists()) {
+                if (!file.isFile() || !file.renameTo(tombstone)) {
+                    throw new IOException("Could not stage the imported sound for deletion");
+                }
+                staged = true;
             }
+
+            sounds.remove(index);
+            if (!saveManifest(sounds)) {
+                sounds.add(index, removed);
+                boolean metadataRestored = saveManifest(sounds);
+                boolean fileRestored = !staged || tombstone.renameTo(file);
+                if (!metadataRestored || !fileRestored) {
+                    throw new IOException("Could not roll back the failed sound deletion");
+                }
+                throw new IOException("Could not update imported sound metadata");
+            }
+
+            // The manifest is now authoritative. A failed best-effort cleanup
+            // leaves only a hidden tombstone, which a later repository access
+            // will try to remove again.
+            if (staged) tombstone.delete();
             return removed;
         }
         return null;
+    }
+
+    static long copyWithLimit(InputStream input, OutputStream output, long limit) throws IOException {
+        if (limit < 0) throw new IllegalArgumentException("limit must not be negative");
+
+        long copied = 0;
+        byte[] buffer = new byte[64 * 1024];
+        int read;
+        while ((read = input.read(buffer)) != -1) {
+            if (read == 0) continue;
+            if (copied > limit - read) throw new IOException("The selected file is larger than 200 MB");
+            output.write(buffer, 0, read);
+            copied += read;
+        }
+        return copied;
     }
 
     static String sanitizeLabel(String label) throws IOException {
@@ -208,10 +257,15 @@ final class ImportedSoundRepository {
     }
 
     private List<AudioModels.ImportedSound> loadManifest() {
-        String raw = preferences.getString(MANIFEST, "[]");
+        List<AudioModels.ImportedSound> sounds = parseManifest(preferences.getString(MANIFEST, "[]"));
+        if (directory.isDirectory()) recoverTemporaryFiles(directory, sounds);
+        return sounds;
+    }
+
+    static List<AudioModels.ImportedSound> parseManifest(@Nullable String raw) {
         List<AudioModels.ImportedSound> result = new ArrayList<>();
         try {
-            JSONArray json = new JSONArray(raw);
+            JSONArray json = new JSONArray(raw == null ? "[]" : raw);
             for (int index = 0; index < json.length(); index++) {
                 try {
                     AudioModels.ImportedSound sound = AudioModels.ImportedSound.fromJson(json.getJSONObject(index));
@@ -240,26 +294,98 @@ final class ImportedSoundRepository {
         if ((!directory.exists() && !directory.mkdirs()) || !directory.isDirectory()) {
             throw new IOException("Could not create private sound storage");
         }
+        loadManifest();
+    }
+
+    static void recoverTemporaryFiles(File directory, List<AudioModels.ImportedSound> sounds) {
+        Set<String> referencedFileIds = new HashSet<>();
+        for (AudioModels.ImportedSound sound : sounds) referencedFileIds.add(sound.fileId);
+
+        File[] files = directory.listFiles();
+        if (files == null) return;
+
+        for (File file : files) {
+            if (!file.isFile()) continue;
+
+            String name = file.getName();
+            if (isTemporaryImportFileName(name)) {
+                file.delete();
+                continue;
+            }
+
+            String fileId = tombstoneFileId(name);
+            if (fileId == null) continue;
+
+            if (!referencedFileIds.contains(fileId)) {
+                // The manifest commit completed, so this is only deferred physical cleanup.
+                file.delete();
+                continue;
+            }
+
+            File destination = new File(directory, fileId);
+            if (!destination.exists()) {
+                // A crash happened after staging the file but before committing its removal.
+                // renameTo never overwrites here, so a failed or ambiguous recovery keeps the
+                // tombstone as the only private copy for a later attempt.
+                file.renameTo(destination);
+            }
+        }
+    }
+
+    private static @Nullable String tombstoneFileId(String name) {
+        if (!name.startsWith(".")) return null;
+
+        int marker = name.lastIndexOf(DELETE_MARKER);
+        if (marker <= 1) return null;
+
+        String fileId = name.substring(1, marker);
+        String operationId = name.substring(marker + DELETE_MARKER.length());
+        if (!isSafeFileId(fileId) || !UUID_VALUE.matcher(operationId).matches()) return null;
+        return fileId;
+    }
+
+    private static boolean hasDeleteTombstone(File directory, String fileId) {
+        File[] files = directory.listFiles();
+        if (files == null) return false;
+
+        for (File file : files) {
+            if (file.isFile() && fileId.equals(tombstoneFileId(file.getName()))) return true;
+        }
+        return false;
+    }
+
+    private static boolean isTemporaryImportFileName(String name) {
+        if (!name.startsWith(".")) return false;
+
+        int marker = name.lastIndexOf(PART_MARKER);
+        if (marker <= 1) return false;
+
+        String fileId = name.substring(1, marker);
+        if (!IMPORTED_FILE_ID.matcher(fileId).matches()) return false;
+
+        int extensionStart = fileId.indexOf('.', 36);
+        String extension = extensionStart < 0 ? "" : fileId.substring(extensionStart);
+        return name.substring(marker + PART_MARKER.length()).equalsIgnoreCase(extension);
     }
 
     private File fileFor(String fileId) {
         return new File(directory, fileId);
     }
 
-    private static boolean isSafeFileId(String fileId) {
+    static boolean isSafeFileId(String fileId) {
         return fileId != null && !fileId.isBlank() && !fileId.contains("/") && !fileId.contains("\\") && !fileId.contains("..");
     }
 
-    private static boolean isSafeSoundId(String id) {
+    static boolean isSafeSoundId(String id) {
         return id != null && USER_SOUND_ID.matcher(id).matches();
     }
 
-    private static String stripExtension(String name) {
+    static String stripExtension(String name) {
         int dot = name.lastIndexOf('.');
         return dot > 0 ? name.substring(0, dot) : name;
     }
 
-    private static String sanitizeProviderFilename(@Nullable String name) {
+    static String sanitizeProviderFilename(@Nullable String name) {
         if (name == null || name.isBlank()) return "Imported sound";
 
         String normalized = name.replace('\\', '/');
@@ -272,7 +398,7 @@ final class ImportedSoundRepository {
         return normalized.isEmpty() ? "Imported sound" : normalized;
     }
 
-    private static String safeExtension(String name, String mimeType) {
+    static String safeExtension(String name, String mimeType) {
         String candidate = "";
         int dot = name.lastIndexOf('.');
         if (dot >= 0 && dot < name.length() - 1) candidate = name.substring(dot + 1).toLowerCase(Locale.ROOT);
@@ -286,11 +412,12 @@ final class ImportedSoundRepository {
             case "flac":
                 return "." + candidate;
             default:
-                if (mimeType.contains("mpeg")) return ".mp3";
-                if (mimeType.contains("mp4")) return ".m4a";
-                if (mimeType.contains("wav")) return ".wav";
-                if (mimeType.contains("ogg")) return ".ogg";
-                if (mimeType.contains("flac")) return ".flac";
+                String normalizedMimeType = mimeType.toLowerCase(Locale.ROOT);
+                if (normalizedMimeType.contains("mpeg")) return ".mp3";
+                if (normalizedMimeType.contains("mp4")) return ".m4a";
+                if (normalizedMimeType.contains("wav")) return ".wav";
+                if (normalizedMimeType.contains("ogg")) return ".ogg";
+                if (normalizedMimeType.contains("flac")) return ".flac";
                 return "";
         }
     }

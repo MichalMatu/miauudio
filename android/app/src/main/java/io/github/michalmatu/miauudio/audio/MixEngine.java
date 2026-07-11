@@ -29,6 +29,8 @@ final class MixEngine {
         .setUsage(C.USAGE_MEDIA)
         .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
         .build();
+    private static final long WAKE_LOCK_TIMEOUT_MS = 10 * 60 * 1000L;
+    private static final long WAKE_LOCK_RENEWAL_MS = 9 * 60 * 1000L;
 
     private final Context context;
     private final ImportedSoundRepository importedSounds;
@@ -36,8 +38,10 @@ final class MixEngine {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Map<String, AudioModels.Layer> activeLayers = new LinkedHashMap<>();
     private final Map<String, FileLayer> fileLayers = new LinkedHashMap<>();
+    private final List<FileLayer> retiringFileLayers = new ArrayList<>();
     private final ProceduralAudioTrack generators;
     private final PowerManager.WakeLock wakeLock;
+    private final Runnable renewWakeLock = this::renewWakeLock;
 
     private double masterVolume = 1;
     private double duckMultiplier = 1;
@@ -181,7 +185,9 @@ final class MixEngine {
         transitionGeneration++;
         handler.removeCallbacksAndMessages(null);
         for (FileLayer layer : fileLayers.values()) layer.release();
+        for (FileLayer layer : retiringFileLayers) layer.release();
         fileLayers.clear();
+        retiringFileLayers.clear();
         activeLayers.clear();
         generators.release();
         releaseWakeLock();
@@ -208,7 +214,13 @@ final class MixEngine {
         if (file != null) {
             file.setTargetVolume(0, transitionMs);
             if (transitionMs == 0) file.release();
-            else handler.postDelayed(file::release, transitionMs);
+            else {
+                retiringFileLayers.add(file);
+                handler.postDelayed(() -> {
+                    retiringFileLayers.remove(file);
+                    file.release();
+                }, transitionMs);
+            }
         }
         activeLayers.remove(id);
     }
@@ -243,10 +255,18 @@ final class MixEngine {
     }
 
     private void acquireWakeLock() {
-        if (!wakeLock.isHeld()) wakeLock.acquire();
+        handler.removeCallbacks(renewWakeLock);
+        if (wakeLock.isHeld()) wakeLock.release();
+        wakeLock.acquire(WAKE_LOCK_TIMEOUT_MS);
+        handler.postDelayed(renewWakeLock, WAKE_LOCK_RENEWAL_MS);
+    }
+
+    private void renewWakeLock() {
+        if (!released && playing) acquireWakeLock();
     }
 
     private void releaseWakeLock() {
+        handler.removeCallbacks(renewWakeLock);
         if (wakeLock.isHeld()) wakeLock.release();
     }
 

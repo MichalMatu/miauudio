@@ -27,10 +27,12 @@ export function SharedModal() {
   >([]);
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const share = searchParams.get('share');
+    const handleSharedMix = () => {
+      const fragment = new URLSearchParams(window.location.hash.slice(1));
+      const share = fragment.get('share');
 
-    if (share) {
+      if (!share) return;
+
       try {
         const parsed = parseSharedMixPayload(JSON.parse(share));
         if (!parsed) return;
@@ -66,10 +68,15 @@ export function SharedModal() {
         return;
       } finally {
         const url = new URL(window.location.href);
-        url.searchParams.delete('share');
+        url.hash = '';
         window.history.replaceState({}, '', url.toString());
       }
-    }
+    };
+
+    handleSharedMix();
+    window.addEventListener('hashchange', handleSharedMix);
+
+    return () => window.removeEventListener('hashchange', handleSharedMix);
   }, []);
 
   const handleOverride = () => {

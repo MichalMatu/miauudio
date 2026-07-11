@@ -24,7 +24,12 @@ current audit status and required evidence are documented in
 
 ## JavaScript and Android dependencies
 
-Third-party packages retain their own licenses. JavaScript dependency metadata
-is locked in `pnpm-lock.yaml`; Android dependency versions are declared in the
-Gradle configuration. Release builds must include any notices required by
-those dependency licenses.
+Third-party packages retain their own licenses. `pnpm notices:generate`
+collects installed production-package license and notice files into
+`public/third-party-notices.txt`; that generated document is bundled
+into the About & Privacy screen and remains available offline in Android
+builds. CI checks that every direct production dependency remains represented.
+
+AndroidX AppCompat, CoordinatorLayout, Core Splashscreen, and Media3 are used
+under Apache License 2.0. Capacitor Android/Core/App/Browser are used under MIT.
+The generated in-app notices include the complete common license texts.

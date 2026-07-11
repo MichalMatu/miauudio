@@ -33,11 +33,13 @@ local Android SDK paths, signing keys, or private audio-license evidence.
 
 ## Report Bugs
 
-To report a bug, please open an issue on GitHub and provide detailed information about the bug, including steps to reproduce it.
+GitHub Issues are disabled during pre-beta preparation. Report bugs to
+`meehow939@gmail.com`. If a contribution fixes a bug, also describe it in the
+pull request, including steps to reproduce it.
 
 ## Request Features
 
-To request a new feature, open an issue on GitHub and describe the feature you would like to see added.
+Send pre-beta feature requests to `meehow939@gmail.com`.
 
 ## License
 

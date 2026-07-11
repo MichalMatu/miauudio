@@ -53,12 +53,34 @@ stability, 20% product differentiation, and 10% experiments.
 - Binaural and isochronic generators integrated as regular mixer layers.
 - Native Android background playback through Media3 and `AudioTrack`, with a
   media session, notification controls, audio focus, headphone-disconnect
-  handling, wake lock, and native sleep timer.
+  handling, a renewable timed wake lock, and native sleep timer.
 - Persistent import, validation, rename, deletion, and preset integration for
   user sounds on Android.
+- Explicit Android rules disabling cloud backup and device-to-device transfer
+  for app-private files, databases, preferences, and device-protected storage.
 - Separate web and native builds, safe-area handling, Android system Back
   behavior, adaptive icon, and splash screen.
-- Physical-device smoke test on a Samsung device.
+- PWA app-shell precaching with the 104 MB audio library fetched on demand,
+  retained in a bounded runtime cache, and protected by a build verifier. The
+  static `/privacy` route is precached without an SPA navigation fallback.
+- Shared web mixes encoded in a URL fragment so their payload is not sent to
+  the web host as part of an HTTP request.
+- GitHub Actions CI covering formatting and linting, TypeScript, web unit
+  tests, the verified PWA build, bundled-notice validation, Android debug and
+  release unit tests, Android Lint, and debug assembly.
+- Unit tests for native mix mapping, reconnect/listener cleanup, transport
+  ordering and retry, import limits/manifest/deletion recovery, mix parsing,
+  and playback-state serialization.
+- Automatically generated offline open-source notices covering 655 current
+  production package entries, plus native external links opened in Capacitor
+  Browser custom tabs.
+- Android release versioning and signing inputs, mandatory signed-AAB checks,
+  and a manual release workflow scoped to the `google-play` environment.
+- Draft Play listing and policy answers, a privacy policy, a beta device-test
+  plan, and candidate Play icon and feature graphics.
+- Short physical-device smoke test on a Samsung Android API 36 device covering
+  playback, foreground-service/media-notification visibility, background and
+  locked-screen playback, task removal, and media-control pause/resume.
 - Bundled audio review and release approval.
 
 ## Phase 0 — Product decisions complete
@@ -79,27 +101,46 @@ the target stores and markets.
 
 ## Phase 1 — Make the Android beta release-ready
 
-1. Run long-session and lifecycle tests on multiple Android versions and at
-   least Samsung plus one device with aggressive battery management. Cover
-   screen lock, backgrounding, task removal, calls/audio focus, wired and
-   Bluetooth disconnects, low storage, corrupt imports, and restart recovery.
-2. Add automated coverage for the playback service, import repository, state
-   migrations, and React/native mix synchronization, then run checks in CI.
-3. Configure release signing, Play App Signing, release AAB generation,
-   version-code management, and release build checks.
-4. Prepare the privacy policy, Data Safety answers, foreground-service
-   explanation, support contact, content rating, store listing, screenshots,
-   and open-source notices.
-5. Generate coherent store graphics from the current attributed logo without
-   treating a branding redesign as a beta blocker.
-6. Change the PWA caching policy so the interface is precached while the
-   104 MB audio library is fetched on demand instead of precaching every file.
-7. Recheck current Google Play target-SDK, testing, and policy requirements in
-   Play Console immediately before the beta submission.
+The PWA delivery policy, automated CI/test gates, Android release build
+configuration, draft Play materials, and candidate icon and feature graphic
+are complete. The remaining work is release execution and real-device
+evidence:
+
+1. Continue the device-test run in
+   [`DEVICE_TEST_PLAN.md`](DEVICE_TEST_PLAN.md) across multiple Android
+   versions and at least Samsung plus one device with aggressive battery
+   management. Record results and evidence for screen lock, backgrounding,
+   task removal, calls/audio focus, wired and Bluetooth disconnects, low
+   storage, corrupt imports, and restart recovery. The short Samsung API 36
+   smoke test passed, including supported/corrupt/empty/oversized import
+   preflights. A diagnostic one-hour service monitor stayed coherent in all 60
+   samples, and debug reinstall/process restart preserved the import and preset
+   on disk. A later unlocked cold start rendered the selected imported sound in
+   `My Sounds` and the saved `Evening scene` in the Presets dialog. The formal
+   signed-RC uninterrupted locked-screen run, device reboot, full multi-device
+   matrix, call/audio-focus,
+   Bluetooth/wired-output, deletion, unsupported/disappearing-file, and
+   low-storage scenarios are still pending.
+2. Provision and safely back up the production upload key, configure the
+   protected workflow secrets, and run the existing release checks to produce
+   the final signed AAB. The release configuration is complete, but the
+   production key and final artifact do not yet exist.
+3. Upload the final AAB to Play Console internal testing and complete its
+   pre-review checks. No production release artifact has been uploaded yet.
+4. Finalize the draft Play pack with real captures from the release candidate,
+   screenshot alt text, and the unedited foreground-service demonstration
+   video. Review and submit the prepared privacy, Data Safety, content-rating,
+   and store-listing answers against the exact AAB. The public support email is
+   configured as `meehow939@gmail.com`; repository Issues remain disabled and
+   are not presented as a working support route.
+5. Verify product-name availability in the target stores and markets.
+6. Recheck current Google Play target-SDK, testing, and policy requirements in
+   Play Console immediately before beta submission.
 
 ### Beta entry criteria
 
-- a signed release AAB passes local checks and Play Console validation;
+- the final signed release AAB passes local checks and Play internal-test
+  validation;
 - one-hour playback succeeds with the screen locked;
 - notification, lock-screen, audio-focus, and Bluetooth scenarios pass;
 - presets, generators, and imported sounds survive restart and catalogue
@@ -112,9 +153,9 @@ the target stores and markets.
 
 ## Phase 2 — Run the closed Android beta
 
-1. Upload the release AAB to the existing Play Console account, invite the
-   testers already available, then recruit enough additional testers to meet
-   the requirements shown for that account.
+1. Promote the internally validated AAB to the closed track, invite the testers
+   already available, then recruit enough additional testers to meet the
+   requirements shown for that account.
 2. Test on a small device matrix covering Android versions and manufacturers,
    not only multiple devices from one vendor.
 3. Collect structured feedback about playback failures, battery impact,
@@ -130,8 +171,8 @@ across the agreed device matrix, and beta feedback confirms the core value.
 ## Phase 3 — Public Android and PWA launch
 
 1. Publish the stable Android build as a free English-language app.
-2. Deploy the full free PWA with on-demand audio and a tested update/offline
-   strategy.
+2. Deploy the verified full free PWA while preserving its app-shell precache,
+   on-demand audio, and tested update/offline strategy.
 3. Complete an English-language accessibility pass, including screen-reader
    labels, larger text, keyboard use on web, and color contrast.
 4. Monitor crash, playback, battery, and support feedback without introducing
