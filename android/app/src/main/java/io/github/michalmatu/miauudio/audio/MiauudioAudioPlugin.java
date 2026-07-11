@@ -71,7 +71,7 @@ public final class MiauudioAudioPlugin extends Plugin {
             } catch (JSONException error) {
                 call.reject("Could not serialize playback state", "SERIALIZATION_FAILED", error);
             }
-        });
+        }, error -> call.reject("Native audio service is unavailable", "SERVICE_UNAVAILABLE", error));
     }
 
     @PluginMethod
@@ -104,7 +104,7 @@ public final class MiauudioAudioPlugin extends Plugin {
             } catch (JSONException error) {
                 call.reject("Could not serialize playback state", "SERIALIZATION_FAILED", error);
             }
-        });
+        }, error -> call.reject("Native audio service is unavailable", "SERVICE_UNAVAILABLE", error));
     }
 
     @PluginMethod
@@ -124,7 +124,7 @@ public final class MiauudioAudioPlugin extends Plugin {
             } catch (JSONException error) {
                 call.reject("Could not serialize playback state", "SERIALIZATION_FAILED", error);
             }
-        });
+        }, error -> call.reject("Native audio service is unavailable", "SERVICE_UNAVAILABLE", error));
     }
 
     @PluginMethod
@@ -202,32 +202,18 @@ public final class MiauudioAudioPlugin extends Plugin {
         }
         ioExecutor.execute(() -> {
             try {
-                AudioModels.ImportedSound existing = null;
-                for (AudioModels.ImportedSound sound : importedSounds.list()) {
-                    if (sound.id.equals(id)) {
-                        existing = sound;
-                        break;
-                    }
-                }
-                if (existing == null) {
+                AudioModels.ImportedSound removed = importedSounds.delete(id);
+                if (removed == null) {
                     call.reject("Imported sound not found", "NOT_FOUND");
                     return;
                 }
-                AudioModels.ImportedSound selected = existing;
                 getActivity().runOnUiThread(() -> {
                     MiauudioPlaybackService service = AudioServiceBridge.currentService();
-                    if (service != null) service.removeImportedFile(selected.fileId);
-                    ioExecutor.execute(() -> {
-                        try {
-                            importedSounds.delete(id);
-                            call.resolve();
-                        } catch (IOException error) {
-                            call.reject(error.getMessage(), "DELETE_FAILED", error);
-                        } catch (RuntimeException error) {
-                            call.reject("Could not delete the imported sound", "DELETE_FAILED", error);
-                        }
-                    });
+                    if (service != null) service.removeImportedFile(removed.fileId);
+                    call.resolve();
                 });
+            } catch (IOException error) {
+                call.reject(error.getMessage(), "DELETE_FAILED", error);
             } catch (RuntimeException error) {
                 call.reject("Could not delete imported sound", "DELETE_FAILED", error);
             }

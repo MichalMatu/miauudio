@@ -1,0 +1,6 @@
+# Paths are resolved relative to the android directory. Prefer an absolute path
+# outside the repository so the upload keystore cannot be committed accidentally.
+storeFile=/absolute/path/to/miauudio-upload.jks
+storePassword=replace-me
+keyAlias=miauudio-upload
+keyPassword=replace-me

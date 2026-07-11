@@ -124,14 +124,15 @@ export const useSoundLibraryStore = create<SoundLibraryStore>((set, get) => ({
 
     set({ error: null });
     setPending(id, true);
-    useSoundStore.getState().unselect(id);
 
     try {
       await deleteImportedSound(id);
       set(state => ({
         records: state.records.filter(item => item.id !== id),
       }));
-      useSoundStore.getState().remove(id);
+      const soundStore = useSoundStore.getState();
+      soundStore.unselect(id);
+      soundStore.remove(id);
     } catch (error) {
       set({ error: messageFrom(error) });
       throw error;

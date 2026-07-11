@@ -1,14 +1,87 @@
+import groovy.json.JsonSlurper
+import java.util.jar.JarFile
+
 apply plugin: 'com.android.application'
+
+def packageMetadata = new JsonSlurper().parse(rootProject.file('../package.json'))
+def appVersionName = packageMetadata.version as String
+def semanticVersion = appVersionName =~ /^(\d+)\.(\d+)\.(\d+)$/
+
+if (!semanticVersion.matches()) {
+    throw new GradleException(
+        "package.json version must use MAJOR.MINOR.PATCH for Android releases; got '${appVersionName}'"
+    )
+}
+
+def versionMajor = semanticVersion.group(1).toLong()
+def versionMinor = semanticVersion.group(2).toLong()
+def versionPatch = semanticVersion.group(3).toLong()
+
+if (versionMinor > 999 || versionPatch > 999) {
+    throw new GradleException('Android version components MINOR and PATCH must be between 0 and 999')
+}
+
+def automaticVersionCode = versionMajor * 1_000_000L + versionMinor * 1_000L + versionPatch
+def versionCodeOverride = System.getenv('MIAUUDIO_VERSION_CODE')
+def appVersionCode = automaticVersionCode
+
+if (versionCodeOverride != null) {
+    if (!(versionCodeOverride ==~ /[1-9]\d*/)) {
+        throw new GradleException('MIAUUDIO_VERSION_CODE must be a positive integer')
+    }
+    appVersionCode = versionCodeOverride.toLong()
+}
+
+if (appVersionCode < 1 || appVersionCode > 2_100_000_000L) {
+    throw new GradleException(
+        "Android versionCode must be between 1 and 2100000000; got ${appVersionCode}"
+    )
+}
+
+def signingPropertiesFile = rootProject.file('signing.properties')
+def signingProperties = new Properties()
+if (signingPropertiesFile.isFile()) {
+    signingPropertiesFile.withInputStream { signingProperties.load(it) }
+}
+
+def signingValue = { String environmentName, String propertyName ->
+    def environmentValue = System.getenv(environmentName)
+    environmentValue != null ? environmentValue : signingProperties.getProperty(propertyName)
+}
+
+def releaseSigning = [
+    storeFile: signingValue('MIAUUDIO_UPLOAD_STORE_FILE', 'storeFile'),
+    storePassword: signingValue('MIAUUDIO_UPLOAD_STORE_PASSWORD', 'storePassword'),
+    keyAlias: signingValue('MIAUUDIO_UPLOAD_KEY_ALIAS', 'keyAlias'),
+    keyPassword: signingValue('MIAUUDIO_UPLOAD_KEY_PASSWORD', 'keyPassword'),
+]
+def missingReleaseSigningValues = releaseSigning.findAll { _, value ->
+    value == null || value.isEmpty()
+}.keySet()
+def releaseSigningConfigured = missingReleaseSigningValues.isEmpty()
+def releaseKeystoreFile = releaseSigning.storeFile != null
+    ? rootProject.file(releaseSigning.storeFile)
+    : null
 
 android {
     namespace = "io.github.michalmatu.miauudio"
     compileSdk = rootProject.ext.compileSdkVersion
+    signingConfigs {
+        if (releaseSigningConfigured) {
+            release {
+                storeFile = releaseKeystoreFile
+                storePassword = releaseSigning.storePassword
+                keyAlias = releaseSigning.keyAlias
+                keyPassword = releaseSigning.keyPassword
+            }
+        }
+    }
     defaultConfig {
         applicationId "io.github.michalmatu.miauudio"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "0.1.0"
+        versionCode = appVersionCode as int
+        versionName = appVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -18,10 +91,136 @@ android {
     }
     buildTypes {
         release {
+            if (releaseSigningConfigured) {
+                signingConfig = signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+}
+
+def requireReleaseSigning = {
+    if (!releaseSigningConfigured) {
+        throw new GradleException(
+            "Missing Android release signing values: ${missingReleaseSigningValues.sort().join(', ')}. " +
+            'Copy android/signing.properties.example to android/signing.properties or set the ' +
+            'MIAUUDIO_UPLOAD_* environment variables.'
+        )
+    }
+    if (!releaseKeystoreFile.isFile()) {
+        throw new GradleException(
+            "Android release keystore does not exist: ${releaseKeystoreFile}. " +
+            'Set storeFile or MIAUUDIO_UPLOAD_STORE_FILE to an existing upload keystore.'
+        )
+    }
+}
+
+def validateReleaseSigning = tasks.register('validateReleaseSigning') {
+    group = 'verification'
+    description = 'Checks that the upload keystore configuration required by release artifacts is present.'
+    doLast requireReleaseSigning
+}
+
+tasks.configureEach { task ->
+    if (task.name in [
+        'assembleRelease',
+        'bundleRelease',
+        'packageRelease',
+        'packageReleaseBundle',
+        'signReleaseBundle',
+    ]) {
+        task.dependsOn validateReleaseSigning
+    }
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.hasTask(validateReleaseSigning.get())) {
+        requireReleaseSigning()
+    }
+}
+
+def releaseBundleFile = layout.buildDirectory.file('outputs/bundle/release/app-release.aab')
+
+def verifyReleaseBundleSignature = tasks.register('verifyReleaseBundleSignature') {
+    group = 'verification'
+    description = 'Cryptographically verifies that every non-metadata entry in the release AAB is signed.'
+    dependsOn 'bundleRelease'
+
+    doLast {
+        def bundleFile = releaseBundleFile.get().asFile
+        if (!bundleFile.isFile()) {
+            throw new GradleException("Release AAB was not created at ${bundleFile}")
+        }
+
+        def unsignedEntries = []
+        def signedContentEntries = 0
+        new JarFile(bundleFile, true).withCloseable { bundle ->
+            bundle.entries().each { entry ->
+                if (entry.directory || entry.name.startsWith('META-INF/')) return
+
+                bundle.getInputStream(entry).withCloseable { stream ->
+                    byte[] buffer = new byte[8192]
+                    while (stream.read(buffer) != -1) {
+                        // Reading the complete entry makes JarFile verify its signature.
+                    }
+                }
+
+                if (entry.codeSigners == null || entry.codeSigners.length == 0) {
+                    unsignedEntries.add(entry.name)
+                } else {
+                    signedContentEntries++
+                }
+            }
+        }
+
+        if (signedContentEntries == 0 || !unsignedEntries.isEmpty()) {
+            def sample = unsignedEntries.take(5).join(', ')
+            throw new GradleException(
+                "Release AAB signature verification failed. Unsigned entries: ${sample}"
+            )
+        }
+    }
+}
+
+def releaseMergedManifestFile = layout.buildDirectory.file(
+    'intermediates/merged_manifest/release/processReleaseMainManifest/AndroidManifest.xml'
+)
+
+def verifyReleaseManifestPolicy = tasks.register('verifyReleaseManifestPolicy') {
+    group = 'verification'
+    description = 'Verifies privacy, backup, and foreground-service invariants in the merged release manifest.'
+    dependsOn 'processReleaseMainManifest'
+    inputs.file(releaseMergedManifestFile)
+
+    doLast {
+        def manifestFile = releaseMergedManifestFile.get().asFile
+        if (!manifestFile.isFile()) {
+            throw new GradleException("Merged release manifest does not exist: ${manifestFile}")
+        }
+
+        def manifest = manifestFile.getText('UTF-8')
+        if (manifest.contains('android.permission.INTERNET')) {
+            throw new GradleException('Merged release manifest must not request android.permission.INTERNET')
+        }
+
+        [
+            'android:allowBackup="false"',
+            'android:dataExtractionRules="@xml/data_extraction_rules"',
+            'android:foregroundServiceType="mediaPlayback"',
+            'android:fullBackupContent="@xml/backup_rules"',
+        ].each { required ->
+            if (!manifest.contains(required)) {
+                throw new GradleException("Merged release manifest is missing required policy: ${required}")
+            }
+        }
+    }
+}
+
+tasks.register('releaseChecks') {
+    group = 'verification'
+    description = 'Runs release unit tests, Android Lint, builds the AAB, and verifies its signature.'
+    dependsOn 'testReleaseUnitTest', 'lintRelease', verifyReleaseBundleSignature, verifyReleaseManifestPolicy
 }
 
 repositories {

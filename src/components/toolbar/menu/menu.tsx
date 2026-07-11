@@ -19,6 +19,7 @@ import {
   BinauralItem,
   IsochronicItem,
   LofiItem,
+  AboutItem,
 } from './items';
 import { Divider } from './divider';
 import { ShareLinkModal } from '@/components/modals/share-link';
@@ -30,6 +31,7 @@ import { BreathingExerciseModal } from '@/components/modals/breathing';
 import { BinauralModal } from '@/components/modals/binaural';
 import { IsochronicModal } from '@/components/modals/isochronic';
 import { LofiModal } from '@/components/modals/lofi';
+import { AboutModal } from '@/components/modals/about';
 import { Pomodoro, Notepad, Todo, Countdown } from '@/components/toolbox';
 
 import { fade, mix, slideY } from '@/lib/motion';
@@ -41,6 +43,7 @@ import { closeModals } from '@/lib/modal';
 import { IS_NATIVE_APP } from '@/constants/app';
 
 const INITIAL_MODALS = {
+  about: false,
   binaural: false,
   breathing: false,
   countdown: false,
@@ -148,6 +151,7 @@ export function Menu() {
 
                     <Divider />
                     <SettingsItem open={() => open('settings')} />
+                    <AboutItem open={() => open('about')} />
                     <Divider />
                     <ShortcutsItem open={() => open('shortcuts')} />
                   </motion.div>
@@ -194,6 +198,7 @@ export function Menu() {
       {!IS_NATIVE_APP && (
         <LofiModal show={modals.lofi} onClose={() => close('lofi')} />
       )}
+      <AboutModal show={modals.about} onClose={() => close('about')} />
     </>
   );
 }

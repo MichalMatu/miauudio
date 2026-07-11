@@ -53,7 +53,8 @@ The native engine uses:
 - a native `AudioTrack` for binaural and isochronic generators;
 - Android audio focus, including delayed focus and ducking;
 - `ACTION_AUDIO_BECOMING_NOISY` handling for disconnected headphones;
-- a partial wake lock only while a non-empty mix is playing;
+- a ten-minute partial wake lock renewed after nine minutes only while a
+  non-empty mix remains playing;
 - a service-owned sleep timer, including its final fade;
 - MediaSession play and pause commands from the notification, lock screen,
   headset, and other system controllers.
@@ -73,17 +74,60 @@ Imports are limited to 200 MB per file. The current picker accepts common MP3,
 M4A/MP4 audio, AAC, WAV, Ogg/Opus, FLAC, and 3GPP inputs, subject to decoder
 support on the device. Imported files can be used like bundled loop layers,
 including favorites, presets, shuffle, per-layer volume, and the sleep timer.
-Renaming changes the display label; deleting first removes the active layer and
-then deletes both its private copy and metadata. App data reset or uninstall
-also removes imported files.
+Renaming changes the display label. Deleting first stages the private file and
+commits removal of its metadata. After that repository operation succeeds, the
+native service removes the active layer and the UI removes its record and
+selection. Interrupted or failed metadata commits retain or recover the private
+copy. App data reset or uninstall also removes imported files.
 
 Persisted mixer state is hydrated before the native manifest is reconciled.
 Valid `user-*` entries are retained until that manifest has been read
 successfully, so a transient native error cannot erase their favorites,
 selection, or volume. Shared web mixes omit user-file IDs because their files
-exist only on the originating device.
+exist only on the originating device. They are encoded after `/#share=` rather
+than in the query string, so the payload is not sent to the web host with an
+HTTP request.
+
+Android cloud backup and device-to-device transfer are deliberately disabled.
+The manifest sets `android:allowBackup="false"`; `backup_rules.xml` and
+`data_extraction_rules.xml` also exclude app files, databases, shared
+preferences, external app storage, and device-protected equivalents. Until an
+explicit export feature exists, app-private settings and imported sounds must
+not be assumed to migrate or restore on another device.
+
+## Privacy, notices, and external links
+
+The PWA publishes the privacy policy as a static `/privacy` page. It is
+precached explicitly, and the service worker has no SPA navigation fallback
+that could serve the mixer homepage in its place.
+
+The About & Privacy screen loads `public/third-party-notices.txt` from the
+bundled app assets, so the notices remain available offline on Android. The
+current generated document contains 655 production package entries. Regenerate
+and validate it after dependency changes:
+
+```bash
+pnpm notices:generate
+pnpm notices:check
+```
+
+CI runs the check. The privacy-policy link opened from the native app uses a
+Capacitor Browser custom tab instead of replacing the Miauudio WebView. The app
+does not present the disabled GitHub Issues page as a working support route;
+the public support email is `meehow939@gmail.com`.
+
+The Android manifest intentionally omits `android.permission.INTERNET`; the
+bundled mixer and imported audio remain local. Opening the privacy policy is
+delegated to the user's browser. Release manifest checks must continue to
+verify that dependency changes do not reintroduce internet access.
 
 ## Common workflows
+
+Run the web/native-state unit tests:
+
+```bash
+pnpm test:unit
+```
 
 Run on a connected device:
 
@@ -104,6 +148,22 @@ Create a debug APK:
 pnpm android:apk
 ```
 
+Create a signed release AAB after configuring the upload key:
+
+```bash
+pnpm android:aab
+```
+
+Run release unit tests, Android Lint, build the signed AAB, and verify its JAR
+signature:
+
+```bash
+pnpm android:release:check
+```
+
+The release artifact is written to
+`android/app/build/outputs/bundle/release/app-release.aab`.
+
 Run Android unit tests, assemble the debug APK, and run Android Lint:
 
 ```bash
@@ -121,6 +181,84 @@ Regenerate the adaptive launcher icon and splash screen from
 pnpm android:assets
 ```
 
+## Release signing and Play App Signing
+
+The private upload key must live outside Git. Generate it once with the JDK,
+store it in a password manager-backed location, and keep an offline backup:
+
+```bash
+keytool -genkeypair -v \
+  -keystore "$HOME/.android/miauudio-upload.jks" \
+  -alias miauudio-upload \
+  -keyalg RSA \
+  -keysize 2048 \
+  -validity 10000
+```
+
+For local builds, copy `android/signing.properties.example` to the ignored
+`android/signing.properties`, then replace every example value. `storeFile`
+is resolved relative to the `android` directory; an absolute path outside the
+repository is recommended. Restrict the file to the current user on systems
+that support POSIX permissions:
+
+```bash
+cp android/signing.properties.example android/signing.properties
+chmod 600 android/signing.properties
+```
+
+CI should inject the same four values without creating a tracked properties
+file:
+
+- `MIAUUDIO_UPLOAD_STORE_FILE`;
+- `MIAUUDIO_UPLOAD_STORE_PASSWORD`;
+- `MIAUUDIO_UPLOAD_KEY_ALIAS`;
+- `MIAUUDIO_UPLOAD_KEY_PASSWORD`.
+
+The manual `Build signed Android release` GitHub Actions workflow expects an
+environment named `google-play` and these secrets:
+
+- `MIAUUDIO_UPLOAD_KEYSTORE_BASE64`: base64-encoded upload keystore;
+- `MIAUUDIO_UPLOAD_STORE_PASSWORD`;
+- `MIAUUDIO_UPLOAD_KEY_ALIAS`;
+- `MIAUUDIO_UPLOAD_KEY_PASSWORD`.
+
+On macOS, create the first value without line wrapping and copy the output into
+the GitHub environment secret:
+
+```bash
+base64 -i "$HOME/.android/miauudio-upload.jks" | tr -d '\n'
+```
+
+The workflow restores the keystore only in the ephemeral runner, executes
+`pnpm android:release:check`, cryptographically verifies the bundle, records
+its SHA-256 checksum, and uploads the AAB as a 14-day workflow artifact.
+
+Environment variables override individual values from `signing.properties`.
+Release artifact tasks stop with a clear error when any value is absent or the
+keystore path does not exist. Debug builds and release-only tests or lint do
+not require signing credentials.
+
+When creating the app in Play Console, opt in to Play App Signing. Upload the
+signed AAB; Google keeps the app-signing key while this local key remains the
+upload key used to authenticate future bundles. Never send or upload the raw
+private `.jks` file. A Play flow for reusing an existing app-signing key uses
+Google's dedicated export and encryption tool, not the raw keystore. If Play
+asks for the upload certificate, export only its public certificate:
+
+```bash
+keytool -export -rfc \
+  -keystore "$HOME/.android/miauudio-upload.jks" \
+  -alias miauudio-upload \
+  -file miauudio-upload-certificate.pem
+```
+
+The Android `versionName` is read from `package.json`. Its `MAJOR.MINOR.PATCH`
+components deterministically produce `versionCode` as
+`MAJOR * 1000000 + MINOR * 1000 + PATCH`, so every Play release must bump the
+package version. For a controlled exceptional rebuild, CI can set the positive
+integer `MIAUUDIO_VERSION_CODE`; it must still be greater than the code already
+uploaded to Play and no greater than `2100000000`.
+
 ## Files committed to Git
 
 Commit the Android source project, Gradle wrapper, generated launcher icons,
@@ -135,7 +273,31 @@ The ignore rules in `android/.gitignore` enforce this split.
 
 ## Device smoke test
 
-Before sharing an APK, verify:
+A short debug-build smoke test passed on a physical Samsung device running
+Android API 36. It confirmed playback, foreground-service and media-notification
+visibility, continued playback during a short background and locked-screen
+run, task removal behavior, and pause/resume through media controls.
+
+A diagnostic one-hour service monitor returned `PLAYING`, an active media
+foreground service, and its notification in all 60 samples. Because the app
+was used during the hour and the screen was locked only for the final portion,
+this is continuity evidence rather than a pass for the formal locked-screen
+case.
+
+The same preflight also passed a supported import, rename, and mixed preset,
+plus safe rejection of corrupt, empty, and oversized files without phantom
+library entries. Reinstalling the latest debug APK and force-stopping then
+relaunching its process preserved the imported private file, metadata, and
+preset on disk. This does not complete the signed release-candidate test plan.
+An unlocked cold start later rendered `My Sounds` with the selected
+`Evening rain` import and displayed the saved `Evening scene` in the Presets
+dialog. The uninterrupted one-hour locked-screen run, device reboot, full
+multi-device/OEM matrix, call/audio-focus,
+Bluetooth/wired-output, deletion, unsupported/disappearing-file, and
+low-storage scenarios remain pending. Use
+[`DEVICE_TEST_PLAN.md`](DEVICE_TEST_PLAN.md) for formal evidence.
+
+Before distributing a beta or release candidate, verify:
 
 1. cold start and splash screen;
 2. selection and playback of at least five simultaneous sounds;
@@ -158,8 +320,14 @@ Before sharing an APK, verify:
 
 Background playback is implemented, but it still needs long-running tests on
 several Android versions and manufacturers, including devices with aggressive
-battery restrictions. Release signing, Play Console configuration, privacy
-policy, store listing assets, and closed testing have not been added yet.
+battery restrictions. The repeatable signed-AAB build is configured, but the
+owner still needs to provision and back up the upload key. Play Console
+configuration, real release screenshots, the foreground-service demonstration
+video, submission of the prepared policy forms, and closed testing remain to be
+completed. The public support email is `meehow939@gmail.com`. Repository Issues
+are disabled and no Issues URL is presented as a working support route. Draft
+copy and answers are in `GOOGLE_PLAY.md`, and the execution matrix is in
+`DEVICE_TEST_PLAN.md`.
 
 Presets, settings, notes, todos, and mixer preferences remain in WebView
 `localStorage`; imported audio and its metadata use Android private storage.

@@ -10,7 +10,7 @@ import { useDarkTheme } from '@/hooks/use-dark-theme';
 
 const metadata: MediaMetadataInit = {
   artist: APP_NAME,
-  title: 'Ambient Sounds for Focus and Sleep',
+  title: 'Ambient Sounds for Focus and Relaxation',
 };
 
 export function MediaSessionTrack() {

@@ -28,7 +28,7 @@ export function ShareLinkModal({ onClose, show }: ShareLinkModalProps) {
   }, [sounds, generatorSettings]);
 
   const url = useMemo(() => {
-    const path = `/?share=${encodeURIComponent(string)}`;
+    const path = `/#share=${encodeURIComponent(string)}`;
 
     if (!isMounted) return path;
 

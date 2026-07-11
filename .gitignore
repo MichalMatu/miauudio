@@ -23,6 +23,14 @@ coverage/
 # private licensing evidence
 private/licenses/
 
+# private device-test evidence
+private/device-tests/
+
+# Android release signing secrets
+*.jks
+*.keystore
+android/signing.properties
+
 # IDE metadata
 .idea/
 
