@@ -3,7 +3,7 @@
   "description": "Android-first offline ambient sound mixer.",
   "private": true,
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "packageManager": "pnpm@11.10.0",
   "engines": {
     "node": ">=22.13.0",

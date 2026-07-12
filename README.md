@@ -55,9 +55,9 @@ manual release workflow are configured. The production upload key has been
 created locally outside the repository under `~/.android`, its passwords are in
 macOS Keychain, and its public certificate has been exported. Off-device key
 backup and the protected GitHub environment secrets remain pending. A final
-signed AAB for version 0.1.0 (1000) was built and cryptographically verified:
+signed AAB for version 0.1.1 (1001) was built and cryptographically verified:
 
-- AAB SHA-256: `dcfe05ea5b5fe61b8a31bebccef25bdbc0ea9ffc43914a49ff9ed9543a2ef983`;
+- AAB SHA-256: `3aeddb0a762dd4f4a45a1ffdf6768ebc6b3de3747a76fdd6b8241464fd421d33`;
 - signer certificate SHA-256:
   `70:71:A2:5C:09:54:B6:A3:34:BD:77:13:88:FA:7E:37:D1:2C:26:CA:7C:C6:59:44:E9:FA:72:C1:FD:47:D9:23`.
 
