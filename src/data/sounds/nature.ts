@@ -76,6 +76,12 @@ export const nature = defineBundledCategory({
       label: 'Jungle',
       path: '/sounds/nature/jungle.mp3',
     },
+    {
+      icon: 'BsFire',
+      id: 'fireplace',
+      label: 'Fireplace',
+      path: '/sounds/nature/fireplace.mp3',
+    },
   ],
   title: 'Nature',
 });

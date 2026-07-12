@@ -22,6 +22,13 @@ Bundled audio can have terms different from the source-code license. Its
 current audit status and required evidence are documented in
 `AUDIO_LICENSES.md`.
 
+### Fireplace (nature/fireplace.mp3)
+
+"chimney fire" by reinsamba  
+Source: https://freesound.org/s/18766/  
+License: Creative Commons Attribution 4.0 (CC BY 4.0)  
+https://creativecommons.org/licenses/by/4.0/
+
 ## JavaScript and Android dependencies
 
 Third-party packages retain their own licenses. `pnpm notices:generate`
