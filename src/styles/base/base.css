@@ -19,11 +19,13 @@ body {
   overflow-x: hidden;
 }
 
-button {
+button,
+[role='button'] {
   -webkit-tap-highlight-color: transparent;
 }
 
-button:focus:not(:focus-visible) {
+button:focus:not(:focus-visible),
+[role='button']:focus:not(:focus-visible) {
   outline: none;
 }
 

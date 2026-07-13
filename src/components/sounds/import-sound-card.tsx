@@ -29,7 +29,10 @@ export function ImportSoundCard() {
       className={cn(soundStyles.sound, styles.card)}
       disabled={importing}
       type="button"
-      onClick={() => void handleImport()}
+      onClick={event => {
+        void handleImport();
+        event.currentTarget.blur();
+      }}
     >
       <div className={soundStyles.icon}>
         <span aria-hidden="true" className={styles.addIcon}>

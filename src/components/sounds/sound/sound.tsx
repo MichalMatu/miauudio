@@ -113,7 +113,10 @@ export const Sound = forwardRef<HTMLDivElement, SoundProps>(
             isSelected && styles.selected,
             hidden && styles.hidden,
           )}
-          onClick={handleClick}
+          onClick={event => {
+            handleClick();
+            event.currentTarget.blur();
+          }}
           onKeyDown={handleKeyDown}
         >
           {props.origin === 'user' && (
