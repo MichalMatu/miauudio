@@ -46,7 +46,8 @@ const count = soundCount();
 
     .wrapper {
       position: relative;
-      padding: 120px 0 80px;
+      padding: calc(120px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))
+        0 80px;
 
       & .pattern {
         position: absolute;

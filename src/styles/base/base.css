@@ -20,7 +20,6 @@ body {
 }
 
 .app-shell {
-  padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
   padding-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
   padding-bottom: calc(
     100px +
