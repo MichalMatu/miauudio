@@ -1,3 +1,8 @@
+.wrapper {
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
 .unselectButton {
   display: flex;
   align-items: center;

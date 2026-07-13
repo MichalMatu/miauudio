@@ -8,9 +8,37 @@ import { Tooltip } from '@/components/tooltip';
 import { useFinePointer } from '@/hooks/use-fine-pointer';
 import { useSoundStore } from '@/stores/sound';
 import { cn } from '@/helpers/styles';
-import { fade, mix, slideX } from '@/lib/motion';
 
 import styles from './unselect.module.css';
+
+const UNSELECT_BUTTON_SIZE = 45;
+const UNSELECT_BUTTON_GAP = 10;
+
+const transition = {
+  duration: 0.22,
+  ease: [0.4, 0, 0.2, 1] as const,
+};
+
+const variants = {
+  exit: {
+    marginLeft: 0,
+    opacity: 0,
+    width: 0,
+    x: 8,
+  },
+  hidden: {
+    marginLeft: 0,
+    opacity: 0,
+    width: 0,
+    x: 8,
+  },
+  show: {
+    marginLeft: UNSELECT_BUTTON_GAP,
+    opacity: 1,
+    width: UNSELECT_BUTTON_SIZE,
+    x: 0,
+  },
+};
 
 export function UnselectButton() {
   const hasFinePointer = useFinePointer();
@@ -19,11 +47,6 @@ export function UnselectButton() {
   const hasHistory = useSoundStore(state => !!state.history);
   const unselectAll = useSoundStore(state => state.unselectAll);
   const locked = useSoundStore(state => state.locked);
-
-  const variants = {
-    ...mix(fade(), slideX(15)),
-    exit: { opacity: 0 },
-  };
 
   const handleToggle = useCallback(() => {
     if (locked) return;
@@ -57,12 +80,15 @@ export function UnselectButton() {
   );
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence initial={false}>
       {(!noSelected || hasHistory) && (
         <motion.div
           animate="show"
+          className={styles.wrapper}
           exit="exit"
           initial="hidden"
+          layout
+          transition={transition}
           variants={variants}
         >
           {hasFinePointer ? (
