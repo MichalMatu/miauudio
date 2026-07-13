@@ -1,4 +1,5 @@
 import { Modal } from '@/components/modal';
+import { FrequencyInput } from '@/components/modals/generator';
 import { Select } from '@/components/select';
 import {
   GENERATOR_PRESET_OPTIONS,
@@ -60,44 +61,26 @@ export function BinauralModal({ onClose, show }: BinauralProps) {
       {settings.preset === 'custom' && (
         <>
           <div className={styles.fieldWrapper}>
-            <label>
-              Base frequency (Hz)
-              <input
-                max="2000"
-                min="20.1"
-                step="0.1"
-                type="number"
-                value={settings.baseFrequency}
-                onChange={event => {
-                  if (!Number.isFinite(event.target.valueAsNumber)) return;
-
-                  setSettings('binaural', {
-                    baseFrequency: event.target.valueAsNumber,
-                    preset: 'custom',
-                  });
-                }}
-              />
-            </label>
+            <FrequencyInput
+              label="Base frequency (Hz)"
+              max={2000}
+              min={settings.beatFrequency / 2 + 0.1}
+              value={settings.baseFrequency}
+              onCommit={baseFrequency => {
+                setSettings('binaural', { baseFrequency, preset: 'custom' });
+              }}
+            />
           </div>
           <div className={styles.fieldWrapper}>
-            <label>
-              Beat frequency (Hz)
-              <input
-                max="40"
-                min="0.1"
-                step="0.1"
-                type="number"
-                value={settings.beatFrequency}
-                onChange={event => {
-                  if (!Number.isFinite(event.target.valueAsNumber)) return;
-
-                  setSettings('binaural', {
-                    beatFrequency: event.target.valueAsNumber,
-                    preset: 'custom',
-                  });
-                }}
-              />
-            </label>
+            <FrequencyInput
+              label="Beat frequency (Hz)"
+              max={40}
+              min={0.1}
+              value={settings.beatFrequency}
+              onCommit={beatFrequency => {
+                setSettings('binaural', { beatFrequency, preset: 'custom' });
+              }}
+            />
           </div>
         </>
       )}
