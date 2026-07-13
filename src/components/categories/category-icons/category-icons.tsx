@@ -41,7 +41,10 @@ export default function CategoryIcons() {
                 >
                   <button
                     className={styles.icon}
-                    onClick={() => goto(category.id)}
+                    onClick={event => {
+                      goto(category.id);
+                      event.currentTarget.blur();
+                    }}
                   >
                     <SoundIcon id={category.icon} />
                   </button>

@@ -27,6 +27,7 @@
       font-size: var(--font-md);
       color: var(--color-foreground);
       cursor: pointer;
+      outline: none;
       background: linear-gradient(
         var(--color-neutral-50),
         var(--color-neutral-100)
@@ -34,13 +35,29 @@
       border: 1px solid var(--color-neutral-300);
       border-radius: 50%;
       transition: 0.2s;
+      -webkit-tap-highlight-color: transparent;
 
-      &:hover {
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          background: linear-gradient(
+            var(--color-neutral-100),
+            var(--color-neutral-200)
+          );
+          transform: scale(1.15);
+        }
+      }
+
+      &:active {
         background: linear-gradient(
           var(--color-neutral-100),
           var(--color-neutral-200)
         );
-        transform: scale(1.15);
+        transform: scale(1.05);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--color-neutral-400);
+        outline-offset: 2px;
       }
     }
   }
