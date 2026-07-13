@@ -7,7 +7,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { cn } from '@/helpers/styles';
 import styles from './sounds.module.css';
 
-const showMoreDurationMs = 300;
+const showMoreDurationMs = 500;
 const showMoreTransition = {
   duration: showMoreDurationMs / 1000,
   ease: 'easeOut' as const,
