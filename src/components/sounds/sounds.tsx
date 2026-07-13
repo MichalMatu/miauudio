@@ -7,7 +7,11 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { cn } from '@/helpers/styles';
 import styles from './sounds.module.css';
 
-const showMoreTransition = { duration: 0.2, ease: 'easeOut' as const };
+const showMoreDurationMs = 300;
+const showMoreTransition = {
+  duration: showMoreDurationMs / 1000,
+  ease: 'easeOut' as const,
+};
 
 import type { Sounds } from '@/data/types';
 
@@ -19,7 +23,9 @@ interface SoundsProps {
 }
 
 export function Sounds({ action, functional, id, sounds }: SoundsProps) {
-  const [soundsRef] = useAutoAnimate<HTMLDivElement>({ duration: 250 });
+  const [soundsRef] = useAutoAnimate<HTMLDivElement>({
+    duration: showMoreDurationMs,
+  });
   const [showAll, setShowAll] = useLocalStorage(`${id}-show-more`, false);
   const [clickedMore, setClickedMore] = useState(false);
 
@@ -66,7 +72,7 @@ export function Sounds({ action, functional, id, sounds }: SoundsProps) {
     setIsAnimating(true);
     setShowAll(prev => !prev);
     setClickedMore(true);
-    window.setTimeout(() => setIsAnimating(false), 200);
+    window.setTimeout(() => setIsAnimating(false), showMoreDurationMs);
   };
 
   return (
