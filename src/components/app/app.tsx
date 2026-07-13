@@ -26,8 +26,10 @@ import { bundledCategories } from '@/data/sounds';
 import { FADE_OUT } from '@/constants/events';
 
 import { subscribe } from '@/lib/event';
+import { usePreventTextSelection } from '@/hooks/use-prevent-text-selection';
 
 export function App() {
+  usePreventTextSelection();
   const records = useSoundLibraryStore(state => state.records);
   const userSounds = useMemo(
     () => records.map(toUserSoundDefinition),
