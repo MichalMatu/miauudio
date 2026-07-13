@@ -11,6 +11,14 @@ function isPartialNumberInput(value: string): boolean {
   return value === '' || /^\d*\.?\d*$/.test(value);
 }
 
+function shouldLiveCommit(draft: string): boolean {
+  return draft !== '' && !draft.endsWith('.');
+}
+
+function clampFrequency(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
 interface FrequencyInputProps {
   id?: string;
   label: string;
@@ -42,9 +50,16 @@ export function FrequencyInput({
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const next = event.target.value;
 
-    if (isPartialNumberInput(next)) {
-      setDraft(next);
-    }
+    if (!isPartialNumberInput(next)) return;
+
+    setDraft(next);
+
+    if (!shouldLiveCommit(next)) return;
+
+    const parsed = Number.parseFloat(next);
+    if (!Number.isFinite(parsed)) return;
+
+    onCommit(clampFrequency(parsed, min, max));
   };
 
   const commit = () => {
@@ -55,7 +70,7 @@ export function FrequencyInput({
       return;
     }
 
-    const clamped = Math.min(Math.max(parsed, min), max);
+    const clamped = clampFrequency(parsed, min, max);
     onCommit(clamped);
     setDraft(formatFrequency(clamped));
   };
