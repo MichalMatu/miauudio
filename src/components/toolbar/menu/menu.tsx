@@ -18,6 +18,7 @@ import {
   CountdownItem,
   BinauralItem,
   IsochronicItem,
+  PhaseItem,
   LofiItem,
   AboutItem,
 } from './items';
@@ -30,6 +31,7 @@ import { SettingsModal } from '@/components/modals/settings';
 import { BreathingExerciseModal } from '@/components/modals/breathing';
 import { BinauralModal } from '@/components/modals/binaural';
 import { IsochronicModal } from '@/components/modals/isochronic';
+import { PhaseModal } from '@/components/modals/phase';
 import { LofiModal } from '@/components/modals/lofi';
 import { AboutModal } from '@/components/modals/about';
 import { Pomodoro, Notepad, Todo, Countdown } from '@/components/toolbox';
@@ -48,6 +50,7 @@ const INITIAL_MODALS = {
   breathing: false,
   countdown: false,
   isochronic: false,
+  phase: false,
   lofi: false,
   notepad: false,
   pomodoro: false,
@@ -147,6 +150,7 @@ export function Menu() {
                     <Divider />
                     <BinauralItem open={() => open('binaural')} />
                     <IsochronicItem open={() => open('isochronic')} />
+                    <PhaseItem open={() => open('phase')} />
                     {!IS_NATIVE_APP && <LofiItem open={() => open('lofi')} />}
 
                     <Divider />
@@ -195,6 +199,7 @@ export function Menu() {
         show={modals.isochronic}
         onClose={() => close('isochronic')}
       />
+      <PhaseModal show={modals.phase} onClose={() => close('phase')} />
       {!IS_NATIVE_APP && (
         <LofiModal show={modals.lofi} onClose={() => close('lofi')} />
       )}

@@ -16,12 +16,26 @@ const generatorSettings: GeneratorSettingsSnapshot = {
   binaural: {
     baseFrequency: 120,
     beatFrequency: 8,
+    phaseOffset: 0,
     preset: 'custom',
+    rotationSpeed: 0,
+    spatialDepth: 0,
   },
   isochronic: {
     baseFrequency: 180,
     beatFrequency: 12,
+    phaseOffset: 0,
     preset: 'custom',
+    rotationSpeed: 0,
+    spatialDepth: 0,
+  },
+  phase: {
+    baseFrequency: 100,
+    beatFrequency: 0,
+    phaseOffset: 180,
+    preset: 'custom',
+    rotationSpeed: 10,
+    spatialDepth: 75,
   },
 };
 
@@ -109,8 +123,50 @@ describe('createNativeAudioLayers', () => {
         generator: 'binaural',
         id: 'binaural',
         kind: 'generator',
-        settings: { baseFrequency: 120, beatFrequency: 8 },
+        settings: {
+          baseFrequency: 120,
+          beatFrequency: 8,
+          phaseOffset: 0,
+          rotationSpeed: 0,
+          spatialDepth: 0,
+        },
         volume: 0.4,
+      },
+    ]);
+  });
+
+  it('maps phase generator settings including spatial depth', () => {
+    const definitions: Array<SoundDefinition> = [
+      {
+        generator: 'phase',
+        icon: 'TbArrowsLeftRight',
+        id: 'phase',
+        kind: 'generator',
+        label: 'Phase Shift',
+        origin: 'bundled',
+        playback: { kind: 'loop' },
+      },
+    ];
+
+    expect(
+      createNativeAudioLayers(
+        definitions,
+        { phase: soundValue(true, 0.55) },
+        generatorSettings,
+      ),
+    ).toEqual([
+      {
+        generator: 'phase',
+        id: 'phase',
+        kind: 'generator',
+        settings: {
+          baseFrequency: 100,
+          beatFrequency: 0,
+          phaseOffset: 180,
+          rotationSpeed: 10,
+          spatialDepth: 75,
+        },
+        volume: 0.55,
       },
     ]);
   });

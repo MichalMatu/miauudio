@@ -1,6 +1,6 @@
 import type { SoundIconId } from './icon-ids';
 
-export type GeneratorId = 'binaural' | 'isochronic';
+export type GeneratorId = 'binaural' | 'isochronic' | 'phase';
 export type SoundOrigin = 'bundled' | 'user';
 
 export interface LoopPlayback {

@@ -28,6 +28,30 @@ export function createNativeAudioLayers(
     if (definition.kind === 'generator') {
       const settings = generatorSettings[definition.generator];
 
+      if (definition.generator === 'phase') {
+        return [
+          {
+            generator: definition.generator,
+            id: definition.id,
+            kind: 'generator',
+            settings: {
+              baseFrequency: settings.baseFrequency,
+              beatFrequency: 0,
+              phaseOffset: Number.isFinite(settings.phaseOffset)
+                ? settings.phaseOffset
+                : 180,
+              rotationSpeed: Number.isFinite(settings.rotationSpeed)
+                ? settings.rotationSpeed
+                : 0.5,
+              spatialDepth: Number.isFinite(settings.spatialDepth)
+                ? settings.spatialDepth
+                : 100,
+            },
+            volume,
+          },
+        ];
+      }
+
       return [
         {
           generator: definition.generator,
@@ -36,6 +60,9 @@ export function createNativeAudioLayers(
           settings: {
             baseFrequency: settings.baseFrequency,
             beatFrequency: settings.beatFrequency,
+            phaseOffset: 0,
+            rotationSpeed: 0,
+            spatialDepth: 0,
           },
           volume,
         },

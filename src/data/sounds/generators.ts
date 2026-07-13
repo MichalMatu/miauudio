@@ -24,6 +24,16 @@ export const generators: Category = {
       playback: { kind: 'loop' },
       shuffleable: false,
     },
+    {
+      generator: 'phase',
+      icon: 'TbArrowsLeftRight',
+      id: 'phase',
+      kind: 'generator',
+      label: 'Phase Shift',
+      origin: 'bundled',
+      playback: { kind: 'loop' },
+      shuffleable: false,
+    },
   ],
   title: 'Generators',
 };

@@ -90,6 +90,36 @@ public class MixRequestValidationTest {
     }
 
     @Test
+    public void parsesPhaseGeneratorSettings() throws Exception {
+        JSONObject input = validRequest().put(
+            "layers",
+            new JSONArray().put(
+                new JSONObject()
+                    .put("id", "phase")
+                    .put("kind", AudioModels.Layer.GENERATOR)
+                    .put("generator", "phase")
+                    .put(
+                        "settings",
+                        new JSONObject()
+                            .put("baseFrequency", 100)
+                            .put("phaseOffset", 180)
+                            .put("rotationSpeed", 0.5)
+                            .put("spatialDepth", 80)
+                    )
+                    .put("volume", 0.5)
+            )
+        );
+
+        AudioModels.Layer layer = MixRequestParser.parse(input).layers.get(0);
+
+        assertEquals("phase", layer.generator);
+        assertEquals(100, layer.settings.baseFrequency, 0);
+        assertEquals(180, layer.settings.phaseOffset, 0);
+        assertEquals(0.5, layer.settings.rotationSpeed, 0);
+        assertEquals(80, layer.settings.spatialDepth, 0);
+    }
+
+    @Test
     public void rejectsUnsupportedKindsAndInvalidGeneratorFrequencies() throws Exception {
         JSONObject unsupportedLayer = assetLayer("rain", 0.5, "sounds/rain/light-rain.mp3").put(
             "kind",

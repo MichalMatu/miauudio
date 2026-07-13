@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { FADE_OUT } from '@/constants/events';
 import { subscribe } from '@/lib/event';
+import { getPhaseChannelLevels, isPhaseRotating } from '@/lib/phase-audio';
 import {
   useGeneratorStore,
   type GeneratorId,
@@ -13,6 +14,7 @@ const PARAMETER_RAMP_TIME = 0.015;
 
 interface GeneratorEngine {
   context: AudioContext;
+  dispose?: () => void;
   oscillators: Array<OscillatorNode>;
   output: GainNode;
   update: (settings: GeneratorSettings) => void;
@@ -109,6 +111,83 @@ function createBinauralEngine(
   };
 }
 
+function createPhaseEngine(
+  context: AudioContext,
+  output: GainNode,
+  settings: GeneratorSettings,
+): GeneratorEngine {
+  const oscillator = context.createOscillator();
+  const splitter = context.createChannelSplitter(2);
+  const merger = context.createChannelMerger(2);
+  const delay = context.createDelay(1);
+  const leftGain = context.createGain();
+  const rightGain = context.createGain();
+  const startTime = context.currentTime;
+  let currentSettings = settings;
+  let animationFrameId = 0;
+
+  oscillator.type = 'sine';
+  oscillator.frequency.value = settings.baseFrequency;
+
+  oscillator.connect(splitter);
+  splitter.connect(leftGain, 0);
+  splitter.connect(delay, 0);
+  delay.connect(rightGain);
+  leftGain.connect(merger, 0, 0);
+  rightGain.connect(merger, 0, 1);
+  merger.connect(output);
+
+  const syncPhase = () => {
+    const elapsed = context.currentTime - startTime;
+    const { delaySeconds, leftAmp, rightAmp, usePhaseOffset } =
+      getPhaseChannelLevels(currentSettings, elapsed);
+
+    rampParameter(context, delay.delayTime, usePhaseOffset ? delaySeconds : 0);
+    rampParameter(context, leftGain.gain, leftAmp);
+    rampParameter(context, rightGain.gain, rightAmp);
+  };
+
+  const stopAnimation = () => {
+    if (!animationFrameId) return;
+
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = 0;
+  };
+
+  const tick = () => {
+    syncPhase();
+    animationFrameId = requestAnimationFrame(tick);
+  };
+
+  const startAnimation = () => {
+    if (animationFrameId) return;
+
+    animationFrameId = requestAnimationFrame(tick);
+  };
+
+  const update = (nextSettings: GeneratorSettings) => {
+    currentSettings = nextSettings;
+    rampParameter(context, oscillator.frequency, nextSettings.baseFrequency);
+
+    if (isPhaseRotating(nextSettings.rotationSpeed)) startAnimation();
+    else {
+      stopAnimation();
+      syncPhase();
+    }
+  };
+
+  oscillator.start();
+  update(settings);
+
+  return {
+    context,
+    dispose: stopAnimation,
+    oscillators: [oscillator],
+    output,
+    update,
+  };
+}
+
 function createIsochronicEngine(
   context: AudioContext,
   output: GainNode,
@@ -159,9 +238,15 @@ function createGeneratorEngine(
   output.connect(context.destination);
 
   try {
-    return generator === 'binaural'
-      ? createBinauralEngine(context, output, settings)
-      : createIsochronicEngine(context, output, settings);
+    if (generator === 'binaural') {
+      return createBinauralEngine(context, output, settings);
+    }
+
+    if (generator === 'phase') {
+      return createPhaseEngine(context, output, settings);
+    }
+
+    return createIsochronicEngine(context, output, settings);
   } catch (error) {
     if (context.state !== 'closed') void context.close();
     throw error;
@@ -209,6 +294,8 @@ export function useGeneratorAudio(
     engineRef.current = null;
 
     if (!engine) return;
+
+    engine.dispose?.();
 
     engine.oscillators.forEach(oscillator => {
       try {

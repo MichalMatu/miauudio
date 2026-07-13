@@ -66,21 +66,62 @@ final class MixRequestParser {
 
     private static AudioModels.Layer parseGenerator(String id, double volume, JSONObject layer) throws JSONException {
         String generator = requiredNonBlank(layer, "generator");
-        if (!"binaural".equals(generator) && !"isochronic".equals(generator)) {
+        if (!"binaural".equals(generator) && !"isochronic".equals(generator) && !"phase".equals(generator)) {
             throw new JSONException("Unsupported generator: " + generator);
         }
 
         JSONObject settings = layer.getJSONObject("settings");
         double baseFrequency = settings.getDouble("baseFrequency");
+        if (!Double.isFinite(baseFrequency)) {
+            throw new JSONException("Generator frequencies must be finite");
+        }
+        if (baseFrequency < 20 || baseFrequency > 2000) {
+            throw new JSONException("baseFrequency is outside the supported range");
+        }
+
+        if ("phase".equals(generator)) {
+            double phaseOffset = settings.optDouble("phaseOffset", 0);
+            double rotationSpeed = settings.optDouble("rotationSpeed", 0);
+            if (!Double.isFinite(phaseOffset) || !Double.isFinite(rotationSpeed)) {
+                throw new JSONException("Phase settings must be finite");
+            }
+            if (phaseOffset < 0 || phaseOffset > 360) {
+                throw new JSONException("phaseOffset must be between 0 and 360");
+            }
+            if (rotationSpeed < 0 || rotationSpeed > 40) {
+                throw new JSONException("rotationSpeed must be between 0 and 40");
+            }
+            double spatialDepth = settings.optDouble("spatialDepth", 100);
+            if (!Double.isFinite(spatialDepth)) {
+                throw new JSONException("spatialDepth must be finite");
+            }
+            if (spatialDepth < 0 || spatialDepth > 100) {
+                throw new JSONException("spatialDepth must be between 0 and 100");
+            }
+
+            return AudioModels.Layer.generator(
+                id,
+                volume,
+                generator,
+                new AudioModels.GeneratorSettings(
+                    baseFrequency,
+                    0,
+                    phaseOffset,
+                    rotationSpeed,
+                    spatialDepth
+                )
+            );
+        }
+
         double beatFrequency = settings.getDouble("beatFrequency");
-        if (!Double.isFinite(baseFrequency) || !Double.isFinite(beatFrequency)) {
+        if (!Double.isFinite(beatFrequency)) {
             throw new JSONException("Generator frequencies must be finite");
         }
         if (beatFrequency < 0.1 || beatFrequency > 40) {
             throw new JSONException("beatFrequency must be between 0.1 and 40");
         }
         double minimumBase = "binaural".equals(generator) ? beatFrequency / 2 + 0.1 : 20;
-        if (baseFrequency < minimumBase || baseFrequency > 2000) {
+        if (baseFrequency < minimumBase) {
             throw new JSONException("baseFrequency is outside the supported range");
         }
 
@@ -88,7 +129,7 @@ final class MixRequestParser {
             id,
             volume,
             generator,
-            new AudioModels.GeneratorSettings(baseFrequency, beatFrequency)
+            new AudioModels.GeneratorSettings(baseFrequency, beatFrequency, 0, 0, 0)
         );
     }
 

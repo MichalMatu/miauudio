@@ -87,6 +87,7 @@ function migrate(persistedState: unknown, version: number) {
           generators: {
             binaural: { ...DEFAULT_GENERATOR_SETTINGS.binaural },
             isochronic: { ...DEFAULT_GENERATOR_SETTINGS.isochronic },
+            phase: { ...DEFAULT_GENERATOR_SETTINGS.phase },
           },
           sounds: preset.sounds ?? {},
         },

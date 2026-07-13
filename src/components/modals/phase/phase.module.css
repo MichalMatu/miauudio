@@ -1,0 +1,30 @@
+.header {
+  margin-bottom: 16px;
+
+  & .title {
+    margin-bottom: 4px;
+    font-family: var(--font-heading);
+    font-size: var(--font-md);
+    font-weight: 600;
+  }
+
+  & .desc {
+    color: var(--color-foreground-subtle);
+  }
+}
+
+.fieldWrapper {
+  margin-bottom: 12px;
+
+  & .fieldLabel,
+  & label {
+    display: block;
+    font-size: var(--font-sm);
+    font-weight: 500;
+    color: var(--color-foreground);
+  }
+
+  & .select {
+    margin-top: 4px;
+  }
+}

@@ -19,7 +19,9 @@ final class ProceduralAudioTrack {
 
     private static final int FRAMES_PER_WRITE = 512;
     private static final double TWO_PI = Math.PI * 2;
-
+    // Keep in sync with src/lib/phase-audio.ts
+    private static final double PHASE_ROTATION_EPSILON = 0.0001;
+    private static final double PHASE_PAN_SHAPE_FACTOR = 0.4;
     private final ConcurrentHashMap<String, Voice> voices = new ConcurrentHashMap<>();
     private final Object monitor = new Object();
     private final ErrorListener errorListener;
@@ -46,6 +48,10 @@ final class ProceduralAudioTrack {
             voice.generator = layer.generator;
             voice.baseFrequency = layer.settings.baseFrequency;
             voice.beatFrequency = layer.settings.beatFrequency;
+            voice.phaseOffset = layer.settings.phaseOffset;
+            voice.rotationSpeed = layer.settings.rotationSpeed;
+            voice.spatialDepth = layer.settings.spatialDepth;
+            if ("phase".equals(layer.generator)) voice.elapsedSeconds = 0;
             voice.layerVolume = layer.volume;
             voice.removeWhenSilent = false;
             voice.setTarget(layer.volume * outputMultiplier, rampFrames);
@@ -186,6 +192,24 @@ final class ProceduralAudioTrack {
                     voice.rightPhase = wrap(voice.rightPhase + TWO_PI * (voice.baseFrequency + halfBeat) / sampleRate);
                     left += Math.sin(voice.leftPhase) * voice.gain;
                     right += Math.sin(voice.rightPhase) * voice.gain;
+                } else if ("phase".equals(voice.generator)) {
+                    voice.elapsedSeconds += 1.0 / sampleRate;
+                    voice.leftPhase = wrap(voice.leftPhase + TWO_PI * voice.baseFrequency / sampleRate);
+                    double depth = Math.max(0, Math.min(voice.spatialDepth, 100)) / 100.0;
+                    double staticPhase = Math.toRadians(voice.phaseOffset) * depth;
+                    double wave = Math.sin(voice.leftPhase);
+
+                    if (voice.rotationSpeed > PHASE_ROTATION_EPSILON) {
+                        double rawPan = Math.sin(TWO_PI * voice.rotationSpeed * voice.elapsedSeconds);
+                        double pan = shapePhasePan(rawPan, depth);
+                        double leftLevel = Math.sqrt(0.5 * (1.0 - pan));
+                        double rightLevel = Math.sqrt(0.5 * (1.0 + pan));
+                        left += wave * leftLevel * voice.gain;
+                        right += Math.sin(voice.leftPhase - staticPhase) * rightLevel * voice.gain;
+                    } else {
+                        left += wave * voice.gain;
+                        right += Math.sin(voice.leftPhase - staticPhase) * voice.gain;
+                    }
                 } else {
                     voice.carrierPhase = wrap(voice.carrierPhase + TWO_PI * voice.baseFrequency / sampleRate);
                     voice.modulatorPhase = wrap(voice.modulatorPhase + TWO_PI * voice.beatFrequency / sampleRate);
@@ -212,6 +236,14 @@ final class ProceduralAudioTrack {
         }
     }
 
+    /** Keep in sync with shapePhasePan in src/lib/phase-audio.ts */
+    private static double shapePhasePan(double pan, double depth) {
+        if (depth <= 0) return pan;
+
+        double exponent = 1.0 - PHASE_PAN_SHAPE_FACTOR * depth;
+        return Math.signum(pan) * Math.pow(Math.abs(pan), exponent);
+    }
+
     private static double wrap(double phase) {
         return phase >= TWO_PI ? phase - TWO_PI : phase;
     }
@@ -226,12 +258,16 @@ final class ProceduralAudioTrack {
         volatile String generator = "binaural";
         volatile double baseFrequency = 100;
         volatile double beatFrequency = 10;
+        volatile double phaseOffset;
+        volatile double rotationSpeed;
+        volatile double spatialDepth = 100;
         volatile double layerVolume;
         volatile double targetGain;
         volatile int rampFramesRemaining;
         volatile boolean removeWhenSilent;
 
         double gain;
+        double elapsedSeconds;
         double leftPhase;
         double rightPhase;
         double carrierPhase;

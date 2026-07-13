@@ -30,6 +30,9 @@ export interface NativeAudioFileLayer extends NativeAudioLayerBase {
 export interface NativeGeneratorSettings {
   baseFrequency: number;
   beatFrequency: number;
+  phaseOffset: number;
+  rotationSpeed: number;
+  spatialDepth: number;
 }
 
 export interface NativeAudioGeneratorLayer extends NativeAudioLayerBase {

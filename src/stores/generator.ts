@@ -18,7 +18,10 @@ export type GeneratorPresetId =
 export interface GeneratorSettings {
   baseFrequency: number;
   beatFrequency: number;
+  phaseOffset: number;
   preset: GeneratorPresetId;
+  rotationSpeed: number;
+  spatialDepth: number;
 }
 
 export type GeneratorSettingsSnapshot = Record<GeneratorId, GeneratorSettings>;
@@ -30,12 +33,58 @@ interface GeneratorPreset {
   label: string;
 }
 
+interface PhasePreset {
+  baseFrequency: number;
+  id: Exclude<GeneratorPresetId, 'custom'>;
+  label: string;
+  phaseOffset: number;
+  rotationSpeed: number;
+}
+
 export const GENERATOR_PRESETS: ReadonlyArray<GeneratorPreset> = [
   { baseFrequency: 100, beatFrequency: 2, id: 'delta', label: 'Delta' },
   { baseFrequency: 100, beatFrequency: 5, id: 'theta', label: 'Theta' },
   { baseFrequency: 100, beatFrequency: 10, id: 'alpha', label: 'Alpha' },
   { baseFrequency: 100, beatFrequency: 20, id: 'beta', label: 'Beta' },
   { baseFrequency: 100, beatFrequency: 40, id: 'gamma', label: 'Gamma' },
+];
+
+export const PHASE_PRESETS: ReadonlyArray<PhasePreset> = [
+  {
+    baseFrequency: 100,
+    id: 'delta',
+    label: 'Delta',
+    phaseOffset: 180,
+    rotationSpeed: 0.25,
+  },
+  {
+    baseFrequency: 100,
+    id: 'theta',
+    label: 'Theta',
+    phaseOffset: 180,
+    rotationSpeed: 0.5,
+  },
+  {
+    baseFrequency: 100,
+    id: 'alpha',
+    label: 'Alpha',
+    phaseOffset: 180,
+    rotationSpeed: 1,
+  },
+  {
+    baseFrequency: 100,
+    id: 'beta',
+    label: 'Beta',
+    phaseOffset: 180,
+    rotationSpeed: 2,
+  },
+  {
+    baseFrequency: 100,
+    id: 'gamma',
+    label: 'Gamma',
+    phaseOffset: 180,
+    rotationSpeed: 5,
+  },
 ];
 
 export const GENERATOR_PRESET_OPTIONS: ReadonlyArray<{
@@ -49,15 +98,39 @@ export const GENERATOR_PRESET_OPTIONS: ReadonlyArray<{
   { label: 'Custom', value: 'custom' },
 ];
 
-const DEFAULT_SETTINGS: GeneratorSettings = {
+export const PHASE_PRESET_OPTIONS: ReadonlyArray<{
+  label: string;
+  value: GeneratorPresetId;
+}> = [
+  ...PHASE_PRESETS.map(preset => ({
+    label: `${preset.label} (${preset.rotationSpeed} Hz)`,
+    value: preset.id,
+  })),
+  { label: 'Custom', value: 'custom' },
+];
+
+const DEFAULT_BEAT_SETTINGS: GeneratorSettings = {
   baseFrequency: 100,
   beatFrequency: 10,
+  phaseOffset: 0,
   preset: 'alpha',
+  rotationSpeed: 0,
+  spatialDepth: 0,
+};
+
+const DEFAULT_PHASE_SETTINGS: GeneratorSettings = {
+  baseFrequency: 100,
+  beatFrequency: 0,
+  phaseOffset: 180,
+  preset: 'alpha',
+  rotationSpeed: 1,
+  spatialDepth: 100,
 };
 
 export const DEFAULT_GENERATOR_SETTINGS: GeneratorSettingsSnapshot = {
-  binaural: { ...DEFAULT_SETTINGS },
-  isochronic: { ...DEFAULT_SETTINGS },
+  binaural: { ...DEFAULT_BEAT_SETTINGS },
+  isochronic: { ...DEFAULT_BEAT_SETTINGS },
+  phase: { ...DEFAULT_PHASE_SETTINGS },
 };
 
 type GeneratorSettingsPatch = Partial<GeneratorSettings>;
@@ -78,8 +151,8 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-function normalizeSettings(
-  generator: GeneratorId,
+function normalizeBeatGeneratorSettings(
+  generator: Extract<GeneratorId, 'binaural' | 'isochronic'>,
   settings: GeneratorSettings,
 ): GeneratorSettings {
   const beatFrequency = clamp(
@@ -97,8 +170,49 @@ function normalizeSettings(
       2000,
     ),
     beatFrequency,
+    phaseOffset: 0,
     preset: PRESET_IDS.has(settings.preset) ? settings.preset : 'custom',
+    rotationSpeed: 0,
+    spatialDepth: 0,
   };
+}
+
+function normalizePhaseSettings(
+  settings: GeneratorSettings,
+): GeneratorSettings {
+  return {
+    baseFrequency: clamp(
+      Number.isFinite(settings.baseFrequency) ? settings.baseFrequency : 100,
+      20,
+      2000,
+    ),
+    beatFrequency: 0,
+    phaseOffset: clamp(
+      Number.isFinite(settings.phaseOffset) ? settings.phaseOffset : 180,
+      0,
+      360,
+    ),
+    preset: PRESET_IDS.has(settings.preset) ? settings.preset : 'custom',
+    rotationSpeed: clamp(
+      Number.isFinite(settings.rotationSpeed) ? settings.rotationSpeed : 0,
+      0,
+      40,
+    ),
+    spatialDepth: clamp(
+      Number.isFinite(settings.spatialDepth) ? settings.spatialDepth : 100,
+      0,
+      100,
+    ),
+  };
+}
+
+function normalizeSettings(
+  generator: GeneratorId,
+  settings: GeneratorSettings,
+): GeneratorSettings {
+  if (generator === 'phase') return normalizePhaseSettings(settings);
+
+  return normalizeBeatGeneratorSettings(generator, settings);
 }
 
 function cloneSnapshot(
@@ -107,7 +221,20 @@ function cloneSnapshot(
   return {
     binaural: { ...settings.binaural },
     isochronic: { ...settings.isochronic },
+    phase: { ...settings.phase },
   };
+}
+
+function withDefaults(
+  generator: GeneratorId,
+  settings: Partial<GeneratorSettings> | undefined,
+): GeneratorSettings {
+  const defaults = DEFAULT_GENERATOR_SETTINGS[generator];
+
+  return normalizeSettings(generator, {
+    ...defaults,
+    ...settings,
+  });
 }
 
 export const useGeneratorStore = create<GeneratorStore>()(
@@ -116,8 +243,9 @@ export const useGeneratorStore = create<GeneratorStore>()(
       apply(snapshot) {
         set({
           settings: {
-            binaural: normalizeSettings('binaural', snapshot.binaural),
-            isochronic: normalizeSettings('isochronic', snapshot.isochronic),
+            binaural: withDefaults('binaural', snapshot.binaural),
+            isochronic: withDefaults('isochronic', snapshot.isochronic),
+            phase: withDefaults('phase', snapshot.phase),
           },
         });
       },
@@ -150,14 +278,9 @@ export const useGeneratorStore = create<GeneratorStore>()(
         return {
           ...current,
           settings: {
-            binaural: normalizeSettings(
-              'binaural',
-              settings.binaural ?? DEFAULT_GENERATOR_SETTINGS.binaural,
-            ),
-            isochronic: normalizeSettings(
-              'isochronic',
-              settings.isochronic ?? DEFAULT_GENERATOR_SETTINGS.isochronic,
-            ),
+            binaural: withDefaults('binaural', settings.binaural),
+            isochronic: withDefaults('isochronic', settings.isochronic),
+            phase: withDefaults('phase', settings.phase),
           },
         };
       },
@@ -165,7 +288,50 @@ export const useGeneratorStore = create<GeneratorStore>()(
       partialize: state => ({ settings: state.settings }),
       skipHydration: true,
       storage: createJSONStorage(() => localStorage),
-      version: 0,
+      migrate: (persistedState, version) => {
+        const persisted = persistedState as {
+          settings?: Partial<GeneratorSettingsSnapshot>;
+        };
+
+        if (version < 2) {
+          const thetaPreset = PHASE_PRESETS.find(
+            preset => preset.id === 'theta',
+          );
+
+          return {
+            settings: {
+              binaural: withDefaults('binaural', persisted.settings?.binaural),
+              isochronic: withDefaults(
+                'isochronic',
+                persisted.settings?.isochronic,
+              ),
+              phase: normalizePhaseSettings({
+                ...DEFAULT_PHASE_SETTINGS,
+                ...thetaPreset,
+                preset: 'theta',
+              }),
+            },
+          } as GeneratorStore;
+        }
+
+        if (version < 3) {
+          const settings = persisted.settings ?? {};
+
+          return {
+            settings: {
+              binaural: withDefaults('binaural', settings.binaural),
+              isochronic: withDefaults('isochronic', settings.isochronic),
+              phase: withDefaults('phase', {
+                ...settings.phase,
+                spatialDepth: 100,
+              }),
+            },
+          } as GeneratorStore;
+        }
+
+        return persistedState as GeneratorStore;
+      },
+      version: 3,
     },
   ),
 );

@@ -11,5 +11,6 @@ export { Todo as TodoItem } from './todo';
 export { Countdown as CountdownItem } from './countdown';
 export { Binaural as BinauralItem } from './binaural';
 export { Isochronic as IsochronicItem } from './isochronic';
+export { Phase as PhaseItem } from './phase';
 export { Lofi as LofiItem } from './lofi';
 export { About as AboutItem } from './about';

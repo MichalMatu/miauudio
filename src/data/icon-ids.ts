@@ -78,6 +78,7 @@ export const SOUND_ICON_IDS = [
   'RiBubbleChartFill',
   'RiFilePaper2Fill',
   'RiSparkling2Fill',
+  'TbArrowsLeftRight',
   'TbBeerFilled',
   'TbBowlFilled',
   'TbSailboat',

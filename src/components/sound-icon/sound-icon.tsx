@@ -91,6 +91,7 @@ import {
   RiSparkling2Fill,
 } from 'react-icons/ri';
 import {
+  TbArrowsLeftRight,
   TbBeerFilled,
   TbBowlFilled,
   TbSailboat,
@@ -183,6 +184,7 @@ const ICONS: Record<SoundIconId, IconType> = {
   RiBubbleChartFill,
   RiFilePaper2Fill,
   RiSparkling2Fill,
+  TbArrowsLeftRight,
   TbBeerFilled,
   TbBowlFilled,
   TbSailboat,

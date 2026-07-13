@@ -1,6 +1,8 @@
 import { bundledCategories } from '@/data/sounds';
 import {
+  DEFAULT_GENERATOR_SETTINGS,
   GENERATOR_PRESETS,
+  PHASE_PRESETS,
   useGeneratorStore,
   type GeneratorPresetId,
   type GeneratorSettings,
@@ -20,7 +22,11 @@ export interface SharedMixPayload {
   version: 1;
 }
 
-const GENERATOR_IDS: ReadonlyArray<GeneratorId> = ['binaural', 'isochronic'];
+const GENERATOR_IDS: ReadonlyArray<GeneratorId> = [
+  'binaural',
+  'isochronic',
+  'phase',
+];
 const GENERATOR_PRESET_IDS = new Set<GeneratorPresetId>([
   ...GENERATOR_PRESETS.map(preset => preset.id),
   'custom',
@@ -33,8 +39,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function isGeneratorSettings(
-  generator: GeneratorId,
+function isBeatGeneratorSettings(
+  generator: Extract<GeneratorId, 'binaural' | 'isochronic'>,
   value: unknown,
 ): value is GeneratorSettings {
   if (!isRecord(value)) return false;
@@ -66,12 +72,55 @@ function isGeneratorSettings(
   return true;
 }
 
+function isPhaseGeneratorSettings(value: unknown): value is GeneratorSettings {
+  if (!isRecord(value)) return false;
+
+  const { baseFrequency, phaseOffset, preset, rotationSpeed, spatialDepth } =
+    value;
+
+  if (typeof baseFrequency !== 'number' || !Number.isFinite(baseFrequency))
+    return false;
+  if (typeof phaseOffset !== 'number' || !Number.isFinite(phaseOffset))
+    return false;
+  if (typeof rotationSpeed !== 'number' || !Number.isFinite(rotationSpeed))
+    return false;
+  if (typeof spatialDepth !== 'number' || !Number.isFinite(spatialDepth))
+    return false;
+  if (typeof preset !== 'string') return false;
+  if (!GENERATOR_PRESET_IDS.has(preset as GeneratorPresetId)) return false;
+  if (baseFrequency < 20 || baseFrequency > 2000) return false;
+  if (phaseOffset < 0 || phaseOffset > 360) return false;
+  if (rotationSpeed < 0 || rotationSpeed > 40) return false;
+  if (spatialDepth < 0 || spatialDepth > 100) return false;
+
+  if (preset !== 'custom') {
+    const definition = PHASE_PRESETS.find(item => item.id === preset);
+
+    if (!definition) return false;
+    if (definition.baseFrequency !== baseFrequency) return false;
+    if (definition.phaseOffset !== phaseOffset) return false;
+    if (definition.rotationSpeed !== rotationSpeed) return false;
+  }
+
+  return true;
+}
+
+function isGeneratorSettings(
+  generator: GeneratorId,
+  value: unknown,
+): value is GeneratorSettings {
+  if (generator === 'phase') return isPhaseGeneratorSettings(value);
+
+  return isBeatGeneratorSettings(generator, value);
+}
+
 function cloneGeneratorSettings(
   settings: GeneratorSettingsSnapshot,
 ): GeneratorSettingsSnapshot {
   return {
     binaural: { ...settings.binaural },
     isochronic: { ...settings.isochronic },
+    phase: { ...settings.phase },
   };
 }
 
@@ -151,11 +200,15 @@ export function parseSharedMixPayload(input: unknown): MixSnapshot | null {
   const generators = snapshot.generators;
   if (!isGeneratorSettings('binaural', generators.binaural)) return null;
   if (!isGeneratorSettings('isochronic', generators.isochronic)) return null;
+  const phaseSettings = isGeneratorSettings('phase', generators.phase)
+    ? generators.phase
+    : DEFAULT_GENERATOR_SETTINGS.phase;
 
   return {
     generators: cloneGeneratorSettings({
       binaural: generators.binaural,
       isochronic: generators.isochronic,
+      phase: phaseSettings,
     }),
     sounds: selectedSounds,
   };

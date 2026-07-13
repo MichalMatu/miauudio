@@ -7,7 +7,6 @@ import { transport } from './sounds/transport';
 import { things } from './sounds/things';
 import { noise } from './sounds/noise';
 import { generators } from './sounds/generators';
-
 import type { Categories } from './types';
 
 export const bundledCategories: Categories = [

@@ -14,10 +14,22 @@ final class AudioModels {
     static final class GeneratorSettings {
         final double baseFrequency;
         final double beatFrequency;
+        final double phaseOffset;
+        final double rotationSpeed;
+        final double spatialDepth;
 
-        GeneratorSettings(double baseFrequency, double beatFrequency) {
+        GeneratorSettings(
+            double baseFrequency,
+            double beatFrequency,
+            double phaseOffset,
+            double rotationSpeed,
+            double spatialDepth
+        ) {
             this.baseFrequency = baseFrequency;
             this.beatFrequency = beatFrequency;
+            this.phaseOffset = phaseOffset;
+            this.rotationSpeed = rotationSpeed;
+            this.spatialDepth = spatialDepth;
         }
     }
 
