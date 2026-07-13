@@ -1,5 +1,7 @@
 import { useEffect, useState, type ChangeEvent } from 'react';
 
+import styles from './frequency-input.module.css';
+
 function formatFrequency(value: number): string {
   const rounded = Math.round(value * 10) / 10;
   return String(rounded);
@@ -58,30 +60,43 @@ export function FrequencyInput({
     setDraft(formatFrequency(clamped));
   };
 
+  const rangeLabel = `${formatFrequency(min)}–${formatFrequency(max)}`;
+
   return (
-    <label>
-      {label}
-      <input
-        enterKeyHint="done"
-        id={id}
-        inputMode="decimal"
-        max={max}
-        min={min}
-        step={step}
-        type="text"
-        value={draft}
-        onBlur={() => {
-          setFocused(false);
-          commit();
-        }}
-        onChange={handleChange}
-        onFocus={() => setFocused(true)}
-        onKeyDown={event => {
-          if (event.key === 'Enter') {
-            event.currentTarget.blur();
-          }
-        }}
-      />
+    <label className={styles.label}>
+      <span className={styles.labelText}>{label}</span>
+      <div className={styles.inputWrapper}>
+        <input
+          aria-describedby={id ? `${id}-range` : undefined}
+          className={styles.input}
+          enterKeyHint="done"
+          id={id}
+          inputMode="decimal"
+          max={max}
+          min={min}
+          step={step}
+          type="text"
+          value={draft}
+          onBlur={() => {
+            setFocused(false);
+            commit();
+          }}
+          onChange={handleChange}
+          onFocus={() => setFocused(true)}
+          onKeyDown={event => {
+            if (event.key === 'Enter') {
+              event.currentTarget.blur();
+            }
+          }}
+        />
+        <span
+          aria-hidden="true"
+          className={styles.range}
+          id={id ? `${id}-range` : undefined}
+        >
+          {rangeLabel}
+        </span>
+      </div>
     </label>
   );
 }
