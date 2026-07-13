@@ -38,6 +38,18 @@ button:focus:not(:focus-visible),
   padding-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
 }
 
+html.native-app {
+  /* Status bar hidden in native; nav bar height is a fixed fallback. */
+  --safe-area-inset-top: 0px;
+  --safe-area-inset-right: 0px;
+  --safe-area-inset-bottom: 48px;
+  --safe-area-inset-left: 0px;
+}
+
+html.native-app:not(.native-app-ready) .app-shell {
+  visibility: hidden;
+}
+
 ::selection {
   color: var(--color-foreground);
   background-color: var(--color-neutral-300);

@@ -9,6 +9,8 @@ import { useTodoStore } from '@/stores/todo';
 import { useGeneratorStore } from '@/stores/generator';
 import { useSoundLibraryStore } from '@/stores/sound-library';
 
+import { NativeAppReady } from '@/components/app/native-app-ready';
+
 import styles from './store-consumer.module.css';
 
 interface StoreConsumerProps {
@@ -114,5 +116,10 @@ export function StoreConsumer({ children }: StoreConsumerProps) {
 
   if (!ready) return null;
 
-  return <>{children}</>;
+  return (
+    <>
+      <NativeAppReady />
+      {children}
+    </>
+  );
 }

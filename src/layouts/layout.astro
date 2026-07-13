@@ -18,7 +18,7 @@ const description = Astro.props.description || APP_DESCRIPTION;
 ---
 
 <!doctype html>
-<html lang="en">
+<html class={IS_NATIVE_APP ? 'native-app' : undefined} lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta

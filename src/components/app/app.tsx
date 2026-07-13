@@ -11,6 +11,7 @@ import {
 import { Container } from '@/components/container';
 import { StoreConsumer } from '@/components/store-consumer';
 import { Buttons } from '@/components/buttons';
+import CategoryIcons from '@/components/categories/category-icons/category-icons';
 import { Categories, type DisplayCategory } from '@/components/categories';
 import { ImportSoundCard } from '@/components/sounds';
 import { SharedModal } from '@/components/modals/shared';
@@ -116,6 +117,7 @@ export function App() {
       <StoreConsumer>
         <NativeAudioController ready sounds={allSounds} />
         <MediaControls />
+        <CategoryIcons />
         <Container>
           <div id="app" />
           <Buttons />
