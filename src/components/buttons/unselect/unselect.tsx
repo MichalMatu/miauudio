@@ -5,6 +5,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 
 import { Tooltip } from '@/components/tooltip';
 
+import { useFinePointer } from '@/hooks/use-fine-pointer';
 import { useSoundStore } from '@/stores/sound';
 import { cn } from '@/helpers/styles';
 import { fade, mix, slideX } from '@/lib/motion';
@@ -12,6 +13,7 @@ import { fade, mix, slideX } from '@/lib/motion';
 import styles from './unselect.module.css';
 
 export function UnselectButton() {
+  const hasFinePointer = useFinePointer();
   const noSelected = useSoundStore(state => state.noSelected());
   const restoreHistory = useSoundStore(state => state.restoreHistory);
   const hasHistory = useSoundStore(state => !!state.history);
@@ -31,6 +33,29 @@ export function UnselectButton() {
 
   useHotkeys('shift+r', handleToggle, {}, [handleToggle]);
 
+  const tooltipLabel = hasHistory
+    ? 'Restore unselected sounds.'
+    : 'Unselect all sounds.';
+
+  const button = (
+    <button
+      disabled={noSelected && !hasHistory}
+      aria-label={
+        hasHistory ? 'Restore Unselected Sounds' : 'Unselect All Sounds'
+      }
+      className={cn(
+        styles.unselectButton,
+        noSelected && !hasHistory && styles.disabled,
+      )}
+      onClick={event => {
+        handleToggle();
+        event.currentTarget.blur();
+      }}
+    >
+      {hasHistory ? <BiUndo /> : <BiTrash />}
+    </button>
+  );
+
   return (
     <AnimatePresence mode="wait">
       {(!noSelected || hasHistory) && (
@@ -40,31 +65,13 @@ export function UnselectButton() {
           initial="hidden"
           variants={variants}
         >
-          <Tooltip.Provider delayDuration={0}>
-            <Tooltip
-              content={
-                hasHistory
-                  ? 'Restore unselected sounds.'
-                  : 'Unselect all sounds.'
-              }
-            >
-              <button
-                disabled={noSelected && !hasHistory}
-                aria-label={
-                  hasHistory
-                    ? 'Restore Unselected Sounds'
-                    : 'Unselect All Sounds'
-                }
-                className={cn(
-                  styles.unselectButton,
-                  noSelected && !hasHistory && styles.disabled,
-                )}
-                onClick={handleToggle}
-              >
-                {hasHistory ? <BiUndo /> : <BiTrash />}
-              </button>
-            </Tooltip>
-          </Tooltip.Provider>
+          {hasFinePointer ? (
+            <Tooltip.Provider delayDuration={0}>
+              <Tooltip content={tooltipLabel}>{button}</Tooltip>
+            </Tooltip.Provider>
+          ) : (
+            button
+          )}
         </motion.div>
       )}
     </AnimatePresence>

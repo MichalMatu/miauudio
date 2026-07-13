@@ -31,7 +31,7 @@ export function Favorite({ id, label }: FavoriteProps) {
 
       document
         .getElementById('category-favorites')
-        ?.scrollIntoView({ behavior: 'smooth' });
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -48,9 +48,10 @@ export function Favorite({ id, label }: FavoriteProps) {
           : `Add ${label} Sound to Favorites`
       }
       onKeyDown={handleKeyDown}
-      onClick={e => {
-        e.stopPropagation();
+      onClick={event => {
+        event.stopPropagation();
         handleToggle();
+        event.currentTarget.blur();
       }}
     >
       <AnimatePresence initial={false} mode="wait">

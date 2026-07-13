@@ -14,7 +14,10 @@ export function Shuffle() {
         <button
           aria-label="Shuffle sounds"
           className={styles.button}
-          onClick={shuffle}
+          onClick={event => {
+            shuffle();
+            event.currentTarget.blur();
+          }}
         >
           <BiShuffle />
         </button>

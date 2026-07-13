@@ -1,4 +1,9 @@
 .category {
+  scroll-margin-top: calc(
+    90px +
+    var(--safe-area-inset-top, env(safe-area-inset-top, 0px))
+  );
+
   &:not(:last-of-type) {
     margin-bottom: 20px;
   }

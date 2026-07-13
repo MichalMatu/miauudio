@@ -102,7 +102,10 @@ export function Sounds({ action, functional, id, sounds }: SoundsProps) {
             styles.button,
             hasHiddenSelection && !showAll && styles.active,
           )}
-          onClick={toggleMore}
+          onClick={event => {
+            toggleMore();
+            event.currentTarget.blur();
+          }}
         >
           <AnimatePresence initial={false} mode="wait">
             <motion.span

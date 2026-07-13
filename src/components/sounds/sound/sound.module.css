@@ -88,7 +88,12 @@
     }
   }
 
-  &:hover .icon,
+  @media (hover: hover) and (pointer: fine) {
+    &:hover .icon {
+      color: var(--color-foreground-subtle);
+    }
+  }
+
   &:focus-visible .icon {
     color: var(--color-foreground-subtle);
   }

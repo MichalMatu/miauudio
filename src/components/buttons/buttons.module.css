@@ -1,6 +1,6 @@
 .buttons {
   position: sticky;
-  top: 30px;
+  top: calc(30px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
   z-index: 10;
   display: flex;
   column-gap: 10px;

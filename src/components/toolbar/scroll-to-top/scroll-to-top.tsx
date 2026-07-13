@@ -41,7 +41,10 @@ export function ScrollToTop() {
         pointerEvents: isVisible ? 'auto' : 'none',
         visibility: isVisible ? 'visible' : 'hidden',
       }}
-      onClick={scrollToTop}
+      onClick={event => {
+        scrollToTop();
+        event.currentTarget.blur();
+      }}
     >
       <BiUpArrowAlt />
     </motion.button>

@@ -16,7 +16,14 @@
   border-radius: 50%;
   transition: 0.2s;
 
-  &:hover {
-    background-color: var(--color-neutral-200);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-color: var(--color-neutral-200);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-neutral-400);
+    outline-offset: 2px;
   }
 }

@@ -19,7 +19,12 @@
       outline-offset: 2px;
     }
 
-    &:hover,
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: var(--color-neutral-200);
+      }
+    }
+
     &:focus-visible {
       background-color: var(--color-neutral-200);
     }

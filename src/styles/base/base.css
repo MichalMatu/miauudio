@@ -19,6 +19,14 @@ body {
   overflow-x: hidden;
 }
 
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+
 .app-shell {
   padding-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
   padding-bottom: calc(

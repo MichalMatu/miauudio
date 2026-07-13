@@ -35,7 +35,10 @@ export function PlayButton() {
     <button
       aria-disabled={noSelected}
       className={cn(styles.playButton, noSelected && styles.disabled)}
-      onClick={handleToggle}
+      onClick={event => {
+        handleToggle();
+        event.currentTarget.blur();
+      }}
     >
       {isPlaying ? (
         <>
