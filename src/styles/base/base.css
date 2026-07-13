@@ -39,10 +39,10 @@ button:focus:not(:focus-visible),
 }
 
 html.native-app {
-  /* Status bar hidden in native; nav bar height is a fixed fallback. */
+  /* Status bar hidden in native; bottom inset comes from the WebView viewport. */
   --safe-area-inset-top: 0px;
   --safe-area-inset-right: 0px;
-  --safe-area-inset-bottom: 48px;
+  --safe-area-inset-bottom: 0px;
   --safe-area-inset-left: 0px;
 }
 
