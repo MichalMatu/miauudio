@@ -5,9 +5,9 @@ import { AnimatePresence, motion } from 'motion/react';
 import { Sound } from './sound';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { cn } from '@/helpers/styles';
-import { fade, scale, mix } from '@/lib/motion';
-
 import styles from './sounds.module.css';
+
+const showMoreTransition = { duration: 0.2, ease: 'easeOut' as const };
 
 import type { Sounds } from '@/data/types';
 
@@ -19,7 +19,7 @@ interface SoundsProps {
 }
 
 export function Sounds({ action, functional, id, sounds }: SoundsProps) {
-  const [soundsRef] = useAutoAnimate<HTMLDivElement>({ duration: 300 });
+  const [soundsRef] = useAutoAnimate<HTMLDivElement>({ duration: 250 });
   const [showAll, setShowAll] = useLocalStorage(`${id}-show-more`, false);
   const [clickedMore, setClickedMore] = useState(false);
 
@@ -61,20 +61,17 @@ export function Sounds({ action, functional, id, sounds }: SoundsProps) {
   }, []);
 
   const toggleMore = () => {
-    if (!isAnimating) {
-      setShowAll(prev => !prev);
-      setClickedMore(true);
-    }
-  };
+    if (isAnimating) return;
 
-  const variants = mix(fade(), scale(0.9));
+    setIsAnimating(true);
+    setShowAll(prev => !prev);
+    setClickedMore(true);
+    window.setTimeout(() => setIsAnimating(false), 200);
+  };
 
   return (
     <div>
-      <div
-        ref={id === 'favorites' || id === 'my-sounds' ? soundsRef : undefined}
-        className={styles.sounds}
-      >
+      <div ref={soundsRef} className={styles.sounds}>
         {action}
 
         {sounds.map((sound, index) => (
@@ -107,19 +104,20 @@ export function Sounds({ action, functional, id, sounds }: SoundsProps) {
             event.currentTarget.blur();
           }}
         >
-          <AnimatePresence initial={false} mode="wait">
-            <motion.span
-              animate="show"
-              exit="hidden"
-              initial="hidden"
-              key={showAll ? `${id}-show-less` : `${id}-show-more`}
-              variants={variants}
-              onAnimationComplete={() => setIsAnimating(false)}
-              onAnimationStart={() => setIsAnimating(true)}
-            >
-              {showAll ? 'Show Less' : 'Show More'}
-            </motion.span>
-          </AnimatePresence>
+          <span className={styles.buttonLabel}>
+            <AnimatePresence initial={false} mode="sync">
+              <motion.span
+                animate={{ opacity: 1 }}
+                className={styles.buttonText}
+                exit={{ opacity: 0 }}
+                initial={{ opacity: 0 }}
+                key={showAll ? `${id}-show-less` : `${id}-show-more`}
+                transition={showMoreTransition}
+              >
+                {showAll ? 'Show Less' : 'Show More'}
+              </motion.span>
+            </AnimatePresence>
+          </span>
         </button>
       )}
     </div>

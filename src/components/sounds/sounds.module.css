@@ -66,4 +66,20 @@
     background-color: var(--color-neutral-950);
     border-radius: 50%;
   }
+
+  & .buttonLabel {
+    position: relative;
+    display: block;
+    min-width: 5.6rem;
+    height: 1em;
+    line-height: 1;
+  }
+
+  & .buttonText {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
