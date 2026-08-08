@@ -1,0 +1,13 @@
+name: miauudio
+
+services:
+  miauudio:
+    build: .
+    image: miauudio-web:local
+    logging:
+      options:
+        max-file: 3
+        max-size: 10m
+    restart: unless-stopped
+    ports:
+      - '8080:8080'

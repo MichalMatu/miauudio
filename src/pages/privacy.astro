@@ -1,0 +1,130 @@
+---
+import { SUPPORT_EMAIL } from '@/constants/app';
+import Layout from '@/layouts/layout.astro';
+---
+
+<Layout
+  description="How Miauudio handles local app data and optional web services."
+  title="Miauudio Privacy Policy"
+>
+  <main>
+    <a class="back" href="/">← Back to Miauudio</a>
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: July 11, 2026</p>
+
+    <p>
+      Miauudio is a free ambient sound mixer developed by MichalMatu. This
+      policy covers the Android app and the web/PWA version.
+    </p>
+
+    <h2>Data handled by the Android app</h2>
+    <p>
+      Miauudio does not require an account and does not include advertising or
+      analytics. The developer does not receive your mixes, presets,
+      favorites, settings, generator configurations, notes, todos, or imported
+      audio. The Android app does not request internet access.
+    </p>
+    <p>
+      Preferences are stored locally in the app's browser storage. Audio that
+      you explicitly import is validated and copied into app-private storage.
+      Imported files are not uploaded by Miauudio.
+    </p>
+    <p>
+      Miauudio does not request health permissions, connect to Health Connect,
+      or ask users to provide health data. It does not infer, transmit, or
+      share health data. Miauudio is not a medical device and does not
+      diagnose, treat, cure, or prevent any medical condition.
+    </p>
+
+    <h2>Web/PWA features</h2>
+    <p>
+      The web version stores preferences locally in your browser. A shared mix
+      is encoded in the fragment of the link that you choose to copy; URL
+      fragments are not sent to the website host in HTTP requests. Imported
+      audio is never included. Miauudio does not operate a server that receives
+      those mixes.
+    </p>
+    <p>
+      The optional Lofi Music Player is available only on the web. It connects
+      to YouTube only after you press Continue. YouTube may then process data
+      under Google's privacy policy. You can use the rest of Miauudio without
+      enabling this feature.
+    </p>
+
+    <h2>Permissions and background playback</h2>
+    <p>
+      On Android, foreground-service and wake-lock permissions keep audio that
+      you started playing active while the app is in the background or the
+      screen is locked. An ongoing media notification makes playback visible
+      and provides controls. The document picker gives Miauudio access only to
+      a file you choose to import.
+    </p>
+
+    <h2>Retention and deletion</h2>
+    <p>
+      Local data remains until you delete it. Imported sounds can be deleted
+      individually in My Sounds. Clearing Miauudio's app data or uninstalling
+      the Android app removes its settings and private imported files. Clearing
+      site data removes locally stored web preferences. The developer cannot
+      delete this data remotely because the developer does not receive it.
+    </p>
+    <p>
+      Miauudio excludes Android app data from cloud backup and device-to-device
+      transfer. Links that you deliberately open from About & Privacy are
+      handled by your system browser, and the destination may process data
+      under its own privacy policy.
+    </p>
+
+    <h2>Sharing and sale</h2>
+    <p>
+      Miauudio does not sell personal data and the Android app does not share
+      personal data with the developer or advertising companies.
+    </p>
+
+    <h2>Questions</h2>
+    <p>
+      For privacy questions, support, or feedback, email
+      <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>. The repository
+      issue tracker is currently disabled and is not a working contact route.
+    </p>
+  </main>
+</Layout>
+
+<style>
+  main {
+    width: min(760px, calc(100% - 40px));
+    padding: 64px 0;
+    margin: 0 auto;
+    line-height: 1.65;
+  }
+
+  .back,
+  main a {
+    color: var(--color-foreground);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  h1 {
+    margin-top: 32px;
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 7vw, 4rem);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .updated {
+    margin: 12px 0 32px;
+    color: var(--color-foreground-subtle);
+  }
+
+  h2 {
+    margin: 32px 0 8px;
+    font-size: var(--font-md);
+    font-weight: 600;
+  }
+
+  p + p {
+    margin-top: 12px;
+  }
+</style>

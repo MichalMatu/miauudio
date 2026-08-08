@@ -1,0 +1,51 @@
+---
+import { pwaInfo } from 'virtual:pwa-info'; // eslint-disable-line
+
+import { Reload } from '@/components/reload';
+
+import { APP_DESCRIPTION, APP_NAME, IS_NATIVE_APP } from '@/constants/app';
+
+import '@/styles/global.css';
+
+interface Props {
+  description?: string;
+  title?: string;
+}
+
+const title =
+  Astro.props.title || `${APP_NAME}: Ambient Sounds for Focus and Relaxation`;
+const description = Astro.props.description || APP_DESCRIPTION;
+---
+
+<!doctype html>
+<html class={IS_NATIVE_APP ? 'native-app' : undefined} lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+      name="viewport"
+    />
+    <meta content={Astro.generator} name="generator" />
+    <meta content="dark" name="color-scheme" />
+    <meta content="#09090b" name="theme-color" />
+    <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
+
+    <title>{title}</title>
+    <meta content={title} name="title" />
+    <meta content={description} name="description" />
+
+    <meta content={title} property="og:title" />
+    <meta content={description} property="og:description" />
+    <meta content={APP_NAME} property="og:site_name" />
+    <meta content="website" property="og:type" />
+
+    {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
+  </head>
+  <body>
+    <div class="app-shell">
+      <slot />
+    </div>
+
+    {!IS_NATIVE_APP && <Reload client:load />}
+  </body>
+</html>

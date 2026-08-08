@@ -1,0 +1,16 @@
+.card {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  color: var(--color-foreground);
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.65;
+  }
+
+  & .addIcon {
+    display: flex;
+    font-size: var(--font-md);
+  }
+}

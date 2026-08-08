@@ -1,0 +1,14 @@
+.astro
+.git
+.github
+android
+dist
+node_modules
+private
+
+*.log
+*.jks
+*.keystore
+.DS_Store
+.env*
+key.properties
