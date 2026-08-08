@@ -2,7 +2,7 @@
 
 ## Download app
 
-[Download latest Android APK](https://github.com/MichalMatu/miauudio/releases/latest/download/miauudio-debug.apk)
+[Download latest Android APK](https://github.com/MichalMatu/miauudio/releases/download/android-latest/miauudio-debug.apk)
 
 The APK is built automatically in GitHub Actions and published as a release asset.
 
