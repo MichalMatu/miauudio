@@ -48,13 +48,14 @@ jobs:
       - name: Prepare release APK filename
         run: cp android/app/build/outputs/apk/debug/app-debug.apk /tmp/miauudio-debug.apk
 
-      - name: Upload APK artifact
+      - name: Upload APK artifact (manual runs only)
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
           name: miauudio-android-apk
           path: /tmp/miauudio-debug.apk
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 3
 
       - name: Publish APK to GitHub Release
         uses: softprops/action-gh-release@v2
