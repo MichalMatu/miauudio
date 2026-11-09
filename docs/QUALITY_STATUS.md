@@ -39,6 +39,7 @@ it cannot substitute for a native or full-project test.
 | Master/alarm volume | Arbitrary out-of-range/non-finite values accepted | Clamp finite values 0..1; regression test added |
 | Sound ID lookup | Inherited prototype properties could be treated as registered sound IDs | Use own-property checks and validate dynamic imported IDs; regression tests added |
 | Howler effect lifecycle | `useSoundEffect` did not unload its Howl instance | Cleanup and volume guard; hook test added |
+| Browser localStorage | Mount effects could overwrite saved values before hydration, especially in StrictMode | Hydration-aware writes, catch storage failures, focused regression tests |
 | Tooling | Repeated manual command sequence and untracked report risk | `pnpm qa:local`, `pnpm test:audio-audit`, `pnpm audit:audio`; ignore private reports |
 | Documentation | CI status/toolchain and release-version evidence stale | README, Android, Play and roadmap status clarified |
 
@@ -81,8 +82,8 @@ manager. Do not label the full repo verified.
    need a genuine interruption/device check, not an assumed fix.
 5. **AudioTrack write**: only negative return values are handled; a short
    positive write could skip PCM samples. Guarded repair requires native test.
-6. **Browser localStorage**: generic `useLocalStorage` hydration and write
-   effects merit isolated tests for malformed values and storage failure.
+6. **Browser localStorage**: the hydration/write race has a targeted fix
+   and tests, but the new regression suite has not run under Vitest yet.
 7. **Coverage**: no tracked dedicated E2E tests; unit tests do not validate
    long background playback or OEM battery policy.
 8. **Release**: 0.1.0 historical AAB evidence must not be substituted for
