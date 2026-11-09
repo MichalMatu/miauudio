@@ -15,8 +15,8 @@ Current default per-sound volume 0.5 is intentional; **do not change it**.
 
 - Static preflight and review of playback/state/Android audio boundaries.
 - Targeted handling of phase clock continuity, Howler error and lifecycle,
-  manual per-layer volume preference, invalid volume inputs, and inherited
-  object property IDs.
+  manual per-layer volume preference, invalid volume inputs, inherited
+  object property IDs, and localStorage hydration/write races.
 - Read-only FFmpeg loudness inventory, Node fixture and focused Vitest tests.
 - Added repeatable local QA scripts and ignored local loudness reports.
 - Updated developer docs and preserved historical hardware/release evidence.
