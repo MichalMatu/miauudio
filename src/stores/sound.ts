@@ -217,7 +217,7 @@ export const useSoundStore = create<SoundStore>()(
         let changed = false;
 
         ids.forEach(id => {
-          if (Object.hasOwn(sounds, id)) return;
+          if (!isUserSoundId(id) || Object.hasOwn(sounds, id)) return;
           sounds[id] = createSoundValue();
           changed = true;
         });
