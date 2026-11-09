@@ -13,7 +13,9 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@/constants/app', () => ({ IS_NATIVE_APP: false }));
-vi.mock('@/contexts/snackbar', () => ({ useSnackbar: () => mocks.showSnackbar }));
+vi.mock('@/contexts/snackbar', () => ({
+  useSnackbar: () => mocks.showSnackbar,
+}));
 vi.mock('@/hooks/use-sound', () => ({
   useSound: (_src: string, options: { onError?: () => void }) => {
     mocks.options = options;
@@ -55,24 +57,53 @@ afterEach(() => cleanup());
 
 describe('web audio file playback errors', () => {
   it('unselects a failed file and pauses the mix when it was the last layer', () => {
-    render(<Playback functional isPlaying isSelected locked={false} sound={rain} volume={0.5} />);
+    render(
+      <Playback
+        functional
+        isPlaying
+        isSelected
+        locked={false}
+        sound={rain}
+        volume={0.5}
+      />,
+    );
     act(() => mocks.options?.onError?.());
     expect(useSoundStore.getState().sounds[rain.id].isSelected).toBe(false);
     expect(useSoundStore.getState().isPlaying).toBe(false);
-    expect(mocks.showSnackbar).toHaveBeenCalledWith('Could not play Light Rain.');
+    expect(mocks.showSnackbar).toHaveBeenCalledWith(
+      'Could not play Light Rain.',
+    );
   });
 
   it('does not stop other selected sounds after a file failure', () => {
     const store = useSoundStore.getState();
     store.select('heavy-rain');
-    render(<Playback functional isPlaying isSelected locked={false} sound={rain} volume={0.5} />);
+    render(
+      <Playback
+        functional
+        isPlaying
+        isSelected
+        locked={false}
+        sound={rain}
+        volume={0.5}
+      />,
+    );
     act(() => mocks.options?.onError?.());
     expect(useSoundStore.getState().sounds['heavy-rain'].isSelected).toBe(true);
     expect(useSoundStore.getState().isPlaying).toBe(true);
   });
 
   it('ignores an error from a sound that has already been unselected', () => {
-    render(<Playback functional isPlaying isSelected locked={false} sound={rain} volume={0.5} />);
+    render(
+      <Playback
+        functional
+        isPlaying
+        isSelected
+        locked={false}
+        sound={rain}
+        volume={0.5}
+      />,
+    );
     act(() => useSoundStore.getState().unselect(rain.id));
     act(() => mocks.options?.onError?.());
     expect(mocks.showSnackbar).not.toHaveBeenCalled();
