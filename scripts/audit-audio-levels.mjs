@@ -8,7 +8,9 @@ import { readdir, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const root = path.resolve(process.argv[2] ?? 'public/sounds');
-const output = path.resolve(process.argv[3] ?? 'audio-levels-report.json');
+const output = path.resolve(
+  process.argv[3] ?? 'private/audio-audit/audio-levels-report.json',
+);
 const extensions = new Set(['.wav', '.mp3', '.m4a', '.aac', '.ogg', '.flac']);
 
 async function findAudio(directory) {
