@@ -43,7 +43,8 @@
 ## Verified gate
 
 `node --check` of isolated audio script and test: PASS.  
-`node --test` synthetic fixture: PASS 1/1 (FFmpeg 7.1.5, Node 22.16).
+`node --test` synthetic fixture: PASS 1/1 (quiet WAV, quiet MP3,
+intentional silence, invalid MP3; FFmpeg 7.1.5, Node 22.16).
 These are **not full repository tests**.
 
 ## Gates still open
