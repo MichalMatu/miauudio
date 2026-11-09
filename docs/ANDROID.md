@@ -13,9 +13,23 @@ application ID should remain stable after the first published build.
 
 ## Toolchain
 
-Use Node.js 22.12+, pnpm 11+, JDK 21, Android SDK 36, and current Android SDK
+Use Node.js 22.13+, pnpm 11+, JDK 21, Android SDK 36, and current Android SDK
 platform tools. Android Studio is optional for command-line builds but useful
 for native debugging and release configuration.
+
+## Current verification policy (2026-11-09)
+
+Automatic GitHub Actions runs were disabled by commits on 2026-11-05. This
+project's current audit workflow uses GitHub Connector plus a local developer
+host/Local Agent and isolated ChatGPT Linux Sandbox. Do **not** run GitHub
+Actions, Codex, or ChatGPT Work for this sprint. The local verification entry
+point is `pnpm qa:local`; Java/Android checks additionally require JDK 21,
+Android SDK 36, and a configured checkout.
+
+This document contains historical 0.1.0 (1000) release evidence; package.json
+currently declares 0.1.1 (1001). Do not reinterpret historical signatures as
+verification of a newly built 0.1.1 AAB. See [quality status](QUALITY_STATUS.md)
+and [handoff](NEXT_CHAT.md) before release operations.
 
 ## Build targets
 
@@ -111,7 +125,7 @@ pnpm notices:generate
 pnpm notices:check
 ```
 
-CI runs the check. The privacy-policy link opened from the native app uses a
+`pnpm qa:local` runs the notice check. The privacy-policy link opened from the native app uses a
 Capacitor Browser custom tab instead of replacing the Miauudio WebView. The app
 does not present the disabled GitHub Issues page as a working support route;
 the public support email is `meehow939@gmail.com`.
@@ -221,7 +235,7 @@ file:
 - `MIAUUDIO_UPLOAD_KEY_ALIAS`;
 - `MIAUUDIO_UPLOAD_KEY_PASSWORD`.
 
-The manual `Build signed Android release` GitHub Actions workflow expects an
+The existing (currently unused) manual `Build signed Android release` GitHub Actions workflow expects an
 environment named `google-play` and these secrets:
 
 - `MIAUUDIO_UPLOAD_KEYSTORE_BASE64`: base64-encoded upload keystore;
@@ -240,7 +254,7 @@ The workflow restores the keystore only in the ephemeral runner, executes
 `pnpm android:release:check`, cryptographically verifies the bundle, records
 its SHA-256 checksum, and uploads the AAB as a 14-day workflow artifact.
 
-A final signed AAB for version 0.1.0 (1000) has been built locally. Its ZIP/JAR
+Historical evidence: a signed AAB for version 0.1.0 (1000) was built locally. Its ZIP/JAR
 integrity and cryptographic signature were verified, while the same source
 commit passed the web and Android CI test/lint/build gates. Its identifiers are:
 

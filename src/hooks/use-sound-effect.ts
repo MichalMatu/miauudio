@@ -30,8 +30,16 @@ export function useSoundEffect(src: string, volume: number = 1) {
   }, [src, isBrowser]);
 
   useEffect(() => {
-    if (sound) sound.volume(volume ?? 1);
+    if (sound && Number.isFinite(volume)) {
+      sound.volume(Math.min(1, Math.max(0, volume)));
+    }
   }, [sound, volume]);
+
+  useEffect(() => {
+    return () => {
+      sound?.unload();
+    };
+  }, [sound]);
 
   const play = useCallback(() => {
     if (sound) {

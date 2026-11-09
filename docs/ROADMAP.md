@@ -1,6 +1,6 @@
 # Miauudio roadmap
 
-Last updated: 2026-07-11.
+Last updated: 2026-11-09 (quality and verification policy; release plan retained).
 
 ## Product direction
 
@@ -65,9 +65,10 @@ stability, 20% product differentiation, and 10% experiments.
   static `/privacy` route is precached without an SPA navigation fallback.
 - Shared web mixes encoded in a URL fragment so their payload is not sent to
   the web host as part of an HTTP request.
-- GitHub Actions CI covering formatting and linting, TypeScript, web unit
-  tests, the verified PWA build, bundled-notice validation, Android debug and
-  release unit tests, Android Lint, and debug assembly.
+- Local/manual quality-gate tooling for formatting and linting, TypeScript,
+  web unit tests, the verified PWA build, bundled-notice validation, Android
+  debug/release unit tests, Android Lint, and debug assembly. Automatic GitHub
+  Actions runs were disabled on 2026-11-05; the gates must be run explicitly.
 - Unit tests for native mix mapping, reconnect/listener cleanup, transport
   ordering and retry, import limits/manifest/deletion recovery, mix parsing,
   and playback-state serialization.
@@ -101,7 +102,7 @@ the target stores and markets.
 
 ## Phase 1 — Make the Android beta release-ready
 
-The PWA delivery policy, automated CI/test gates, Android release build
+The PWA delivery policy, local/manual test gates, Android release build
 configuration, draft Play materials, and candidate icon and feature graphic
 are complete. The remaining work is release execution and real-device
 evidence:
@@ -211,6 +212,25 @@ work.
   current roadmap;
 - cloud sync, accounts, additional generators, and a sound-pack marketplace
   only after there is evidence that they solve a real user need.
+
+## 2026-11-09 audit and stabilization gate
+
+Draft PR [#3](https://github.com/MichalMatu/miauudio/pull/3) tracks a separate
+quality branch. It adds read-only source-audio loudness inventory, guards for
+invalid mixer volumes, fixes Web Howler lifecycle/error handling, and preserves
+native Phase Shift continuity. The intentional default per-layer volume remains
+**50%**; source-loudness measurements are not a reason to change it globally.
+
+These changes are **not part of the main/release baseline** until tested and
+merged. The audio scanner's synthetic test passed in an isolated Linux
+sandbox. Full library loudness measurement, package checks, Web unit tests,
+Android build/tests, and device listening/focus/mono-stereo checks remain open.
+No new product features are authorized under this stabilization sprint.
+
+See [current quality status](QUALITY_STATUS.md), [development plan](DEVELOPMENT_PLAN.md),
+and [next-chat handoff](NEXT_CHAT.md). Do not redo historical Samsung preflight
+merely to recreate evidence; use the existing [device plan](DEVICE_TEST_PLAN.md)
+and execute only the still-open acceptance matrix.
 
 ## Main risks
 

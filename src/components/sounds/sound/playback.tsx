@@ -24,17 +24,34 @@ interface FilePlaybackProps
 }
 
 interface AssetFilePlaybackProps extends Omit<FilePlaybackProps, 'sound'> {
+  id: string;
+  label: string;
   path: string;
 }
 
 function AssetFilePlayback({
+  id,
   isPlaying,
   isSelected,
+  label,
   locked,
   path,
   volume,
 }: AssetFilePlaybackProps) {
-  const sound = useSound(getAssetPath(path), { loop: true, volume });
+  const showSnackbar = useSnackbar();
+  const handleError = useCallback(() => {
+    const store = useSoundStore.getState();
+    if (!store.sounds[id]?.isSelected) return;
+
+    store.unselect(id);
+    if (store.noSelected()) store.pause();
+    showSnackbar(`Could not play ${label}.`);
+  }, [id, label, showSnackbar]);
+  const sound = useSound(getAssetPath(path), {
+    loop: true,
+    onError: handleError,
+    volume,
+  });
 
   useEffect(() => {
     if (locked) return;
@@ -49,7 +66,14 @@ function AssetFilePlayback({
 function FilePlayback({ sound, ...state }: FilePlaybackProps) {
   if (sound.source.kind !== 'asset') return null;
 
-  return <AssetFilePlayback path={sound.source.path} {...state} />;
+  return (
+    <AssetFilePlayback
+      id={sound.id}
+      label={sound.label}
+      path={sound.source.path}
+      {...state}
+    />
+  );
 }
 
 interface GeneratorPlaybackProps

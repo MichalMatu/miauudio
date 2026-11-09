@@ -116,7 +116,7 @@ export function mergePersistedSounds(
   );
 
   Object.entries(persistedSounds).forEach(([id, sound]) => {
-    if (isUserSoundId(id) && !sounds[id]) sounds[id] = sound;
+    if (isUserSoundId(id) && !Object.hasOwn(sounds, id)) sounds[id] = sound;
   });
 
   return sounds;
@@ -150,7 +150,7 @@ export const useSoundStore = create<SoundStore>()(
         const missingIds: Array<string> = [];
 
         Object.entries(newSounds).forEach(([id, volume]) => {
-          if (!sounds[id]) {
+          if (!Object.hasOwn(sounds, id)) {
             missingIds.push(id);
             return;
           }
@@ -188,7 +188,7 @@ export const useSoundStore = create<SoundStore>()(
         );
 
         allowedIds.forEach(id => {
-          if (!sounds[id]) sounds[id] = createSoundValue();
+          if (!Object.hasOwn(sounds, id)) sounds[id] = createSoundValue();
         });
 
         const currentIds = Object.keys(currentSounds);
@@ -217,7 +217,7 @@ export const useSoundStore = create<SoundStore>()(
         let changed = false;
 
         ids.forEach(id => {
-          if (sounds[id]) return;
+          if (!isUserSoundId(id) || Object.hasOwn(sounds, id)) return;
           sounds[id] = createSoundValue();
           changed = true;
         });
@@ -227,7 +227,7 @@ export const useSoundStore = create<SoundStore>()(
 
       remove(id) {
         const sounds = { ...get().sounds };
-        if (!sounds[id]) return;
+        if (!Object.hasOwn(sounds, id)) return;
 
         delete sounds[id];
 
@@ -254,7 +254,7 @@ export const useSoundStore = create<SoundStore>()(
 
       select(id) {
         const sounds = get().sounds;
-        if (!sounds[id]) return;
+        if (!Object.hasOwn(sounds, id)) return;
 
         set({
           history: null,
@@ -267,7 +267,7 @@ export const useSoundStore = create<SoundStore>()(
 
       setVolume(id, volume) {
         const sounds = get().sounds;
-        if (!sounds[id]) return;
+        if (!Object.hasOwn(sounds, id) || !Number.isFinite(volume)) return;
 
         set({
           sounds: {
@@ -282,7 +282,7 @@ export const useSoundStore = create<SoundStore>()(
 
       shuffle(ids) {
         const sounds = resetSelection(get().sounds);
-        const registeredIds = ids.filter(id => sounds[id]);
+        const registeredIds = ids.filter(id => Object.hasOwn(sounds, id));
         const randomIDs = pickMany(registeredIds, 4);
 
         randomIDs.forEach(id => {
@@ -300,7 +300,7 @@ export const useSoundStore = create<SoundStore>()(
 
       toggleFavorite(id) {
         const sounds = get().sounds;
-        if (!sounds[id]) return;
+        if (!Object.hasOwn(sounds, id)) return;
 
         set({
           history: null,
@@ -321,7 +321,7 @@ export const useSoundStore = create<SoundStore>()(
 
       unselect(id) {
         const sounds = get().sounds;
-        if (!sounds[id]) return;
+        if (!Object.hasOwn(sounds, id)) return;
 
         set({
           sounds: {

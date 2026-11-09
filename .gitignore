@@ -23,6 +23,9 @@ coverage/
 # private licensing evidence
 private/licenses/
 
+# generated local audio measurements
+private/audio-audit/
+
 # private device-test evidence
 private/device-tests/
 

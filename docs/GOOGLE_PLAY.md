@@ -1,5 +1,12 @@
 # Google Play submission pack
 
+> **Evidence scope (2026-11-09):** The 0.1.0 (1000) AAB data below is a
+> historical release artifact, not a signed validation of the currently
+> declared 0.1.1 (1001) package or of Draft PR #3. The Play submission remains
+> pending. Manual local and physical-device gates in
+> [QUALITY_STATUS.md](QUALITY_STATUS.md) must pass for the eventual candidate.
+
+
 Last verified against Google Play documentation: 2026-07-11.
 
 This document contains the prepared English listing copy, policy answers, and

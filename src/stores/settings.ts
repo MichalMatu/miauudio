@@ -16,11 +16,13 @@ export const useSettingsStore = create<SettingsStore>()(
       globalVolume: 1,
 
       setAlarmVolume(volume: number) {
-        set({ alarmVolume: volume });
+        if (!Number.isFinite(volume)) return;
+        set({ alarmVolume: Math.min(1, Math.max(0, volume)) });
       },
 
       setGlobalVolume(volume: number) {
-        set({ globalVolume: volume });
+        if (!Number.isFinite(volume)) return;
+        set({ globalVolume: Math.min(1, Math.max(0, volume)) });
       },
     }),
     {

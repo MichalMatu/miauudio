@@ -51,7 +51,7 @@ final class ProceduralAudioTrack {
             voice.phaseOffset = layer.settings.phaseOffset;
             voice.rotationSpeed = layer.settings.rotationSpeed;
             voice.spatialDepth = layer.settings.spatialDepth;
-            if ("phase".equals(layer.generator)) voice.elapsedSeconds = 0;
+            // Preserve the phase clock across mix/volume updates to avoid pan jumps.
             voice.layerVolume = layer.volume;
             voice.removeWhenSilent = false;
             voice.setTarget(layer.volume * outputMultiplier, rampFrames);

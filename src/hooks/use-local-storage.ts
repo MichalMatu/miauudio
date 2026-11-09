@@ -1,4 +1,10 @@
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import {
+  type Dispatch,
+  type SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 type SetValue<T> = Dispatch<SetStateAction<T>>;
 
@@ -12,26 +18,30 @@ type SetValue<T> = Dispatch<SetStateAction<T>>;
  */
 export function useLocalStorage<T>(key: string, fallback: T): [T, SetValue<T>] {
   const [value, setValue] = useState(fallback);
+  const [hydratedKey, setHydratedKey] = useState<string | null>(null);
+  const fallbackRef = useRef(fallback);
+  fallbackRef.current = fallback;
 
   useEffect(() => {
-    const value = localStorage.getItem(key);
-
-    if (!value) return;
-
-    let parsed;
-
+    let restored = fallbackRef.current;
     try {
-      parsed = JSON.parse(value);
+      const stored = localStorage.getItem(key);
+      if (stored !== null) restored = JSON.parse(stored) as T;
     } catch {
-      parsed = fallback;
+      // Corrupt or unavailable storage should not prevent in-memory use.
     }
-
-    setValue(parsed);
-  }, [key, fallback]);
+    setValue(restored);
+    setHydratedKey(key);
+  }, [key]);
 
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(value));
-  }, [value, key]);
+    if (hydratedKey !== key) return;
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      // Keep working in memory if persistent storage is unavailable.
+    }
+  }, [hydratedKey, key, value]);
 
   return [value, setValue];
 }
