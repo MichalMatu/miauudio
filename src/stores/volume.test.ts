@@ -48,6 +48,22 @@ describe('volume safety', () => {
     );
   });
 
+  it('ignores invalid dynamic registrations and retains the object prototype', () => {
+    const originalCount = Object.keys(useSoundStore.getState().sounds).length;
+    useSoundStore.getState().register([
+      '__proto__',
+      'constructor',
+      'toString',
+      'user-malformed',
+    ]);
+    expect(Object.keys(useSoundStore.getState().sounds)).toHaveLength(
+      originalCount,
+    );
+    expect(Object.getPrototypeOf(useSoundStore.getState().sounds)).toBe(
+      Object.prototype,
+    );
+  });
+
   it('clamps master and alarm values without storing invalid numbers', () => {
     const settings = useSettingsStore.getState();
     settings.setGlobalVolume(0.35);
