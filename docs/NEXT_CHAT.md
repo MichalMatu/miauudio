@@ -84,7 +84,7 @@ development plan or handoff existed. They are new on Draft PR #3, **not main**.
 - GitHub branch/main/PR/tree/source inspection, recent commit audit.
 - Linux Node 22 `node --check` of copied audio analyzer and test.
 - Isolated Node synthetic audio regression **1/1 PASS** using generated
-  quiet WAV, deliberate silence and corrupt MP3 under FFmpeg 7.1.5.
+  quiet WAV, quiet MP3, deliberate silence and corrupt MP3 under FFmpeg 7.1.5.
 - Current 50% default and no-automatic-CI changes confirmed statically.
 
 **NOT RUN (do not claim pass):**
