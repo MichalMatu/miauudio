@@ -49,6 +49,20 @@ test(
         path.join(sounds, 'silence.wav'),
         '-y',
       ]);
+      execFileSync('ffmpeg', [
+        '-v',
+        'error',
+        '-f',
+        'lavfi',
+        '-i',
+        'sine=frequency=660:duration=2',
+        '-af',
+        'volume=0.1',
+        '-c:a',
+        'libmp3lame',
+        path.join(sounds, 'quiet.mp3'),
+        '-y',
+      ]);
       await writeFile(path.join(sounds, 'broken.mp3'), 'not an MP3 file');
       const run = spawnSync(process.execPath, [script, sounds, output], {
         encoding: 'utf8',
@@ -58,8 +72,11 @@ test(
       const report = JSON.parse(await readFile(output, 'utf8'));
       const quiet = report.measured.find(item => item.file === 'quiet.wav');
       const silence = report.measured.find(item => item.file === 'silence.wav');
+      const quietMp3 = report.measured.find(item => item.file === 'quiet.mp3');
       assert.ok(quiet.integratedLufs < -28, JSON.stringify(quiet));
       assert.ok(quiet.notes.some(note => note.startsWith('quiet')));
+      assert.ok(quietMp3.integratedLufs < -28, JSON.stringify(quietMp3));
+      assert.ok(quietMp3.notes.some(note => note.startsWith('quiet')));
       assert.ok(silence);
       assert.ok(!silence.notes.some(note => note.startsWith('quiet')));
       assert.equal(report.failed.length, 1);
