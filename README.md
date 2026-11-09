@@ -4,7 +4,7 @@
 
 [Download latest Android APK](https://github.com/MichalMatu/miauudio/releases/download/android-latest/miauudio-debug.apk)
 
-The APK is built automatically in GitHub Actions and published as a release asset.
+The link points to an existing GitHub Release APK asset; it is not a guarantee of a freshly rebuilt APK. Automatic GitHub Actions runs were disabled on 2026-11-05. Build locally for a verified current APK.
 
 Miauudio is a free, Android-first ambient sound mixer for focus and relaxation.
 Users can combine bundled and imported audio, then save the mix as a custom
@@ -43,10 +43,10 @@ interface is English-only; localization is planned for a later stage.
 
 The PWA precaches the application shell while the 104 MB sound library is
 fetched on demand and retained in a bounded runtime cache. A build verifier
-guards that policy. GitHub Actions runs formatting and lint checks, TypeScript
-validation, web state-synchronization tests, the verified PWA build, Android
-unit tests, Android Lint, and a debug build for changes on `main` and pull
-requests. Shared web mixes use a URL fragment rather than a query parameter,
+guards that policy. The repository provides local formatting, lint,
+TypeScript, unit-test, notice-validation, PWA-build, and native-build gates via
+`pnpm qa:local`. Automatic GitHub Actions runs were disabled on 2026-11-05;
+quality checks must now be executed explicitly on a trusted development host. Shared web mixes use a URL fragment rather than a query parameter,
 so the encoded mix is not sent to the web host in an HTTP request. `/privacy`
 is a static precached page; the service worker has no SPA navigation fallback
 that could replace it with the homepage.
@@ -101,12 +101,13 @@ Before a public Play release, the project still needs:
 - successful internal and closed Play test tracks.
 
 See [the roadmap](docs/ROADMAP.md), [Google Play submission pack](docs/GOOGLE_PLAY.md),
-and [device test plan](docs/DEVICE_TEST_PLAN.md) for the current priorities and
-release evidence.
+[device test plan](docs/DEVICE_TEST_PLAN.md), [quality status](docs/QUALITY_STATUS.md),
+and [next-chat handoff](docs/NEXT_CHAT.md) for current priorities, outstanding
+gates, and release evidence.
 
 ## Requirements
 
-- Node.js 22.12 or newer;
+- Node.js 22.13 or newer;
 - pnpm 11 or newer;
 - JDK 21;
 - Android SDK 36 for Android development;
@@ -153,14 +154,9 @@ The APK is written to:
 android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-You can also build and download Android APKs from GitHub Actions:
-
-1. Open the Actions tab in the repository.
-2. Run the workflow named "Build Android APK and Release artifacts".
-3. Download the artifact named "miauudio-android-builds".
-4. If you provide a release tag in the workflow input, the signed release APK and AAB are published as GitHub Release assets.
-
-For a direct local install, copy the generated APK to a phone and open it to install.
+For a direct local install, copy the locally generated APK to a phone and open
+it to install. This project's maintenance mode does not use GitHub Actions,
+Codex, or ChatGPT Work.
 
 To build a signed release APK locally:
 
@@ -188,6 +184,9 @@ More details are available in [Android development](docs/ANDROID.md).
 | Command | Purpose |
 | --- | --- |
 | `pnpm check` | Run the Biome formatter and linter checks. |
+| `pnpm qa:local` | Run local Web/PWA, TypeScript, test, notice, and native-web quality gates. |
+| `pnpm test:audio-audit` | Test the read-only audio loudness scanner with generated fixtures. |
+| `pnpm audit:audio` | Measure bundled recordings with FFmpeg and FFprobe; write ignored local report. |
 | `pnpm typecheck` | Validate TypeScript types. |
 | `pnpm build` | Build the web/PWA target. |
 | `pnpm build:pwa` | Build and verify app-shell precaching and on-demand audio. |
