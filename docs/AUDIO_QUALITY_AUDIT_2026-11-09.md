@@ -28,7 +28,8 @@ pnpm test:audio-audit
 
 The inventory recursively measures bundled MP3/WAV and supported additional formats and records duration, channels, integrated LUFS, True Peak (dBTP), loudness range and suspected quiet recordings. Thresholds of < -28 LUFS and > -14 LUFS are *triage hints*, not global mastering targets. A source flagged as quiet may be intentionally subtle. `silence.wav` is intentionally excluded from quiet-alert classification. No assets are modified.
 
-Sandbox verification: analysis smoke test using synthetic quiet WAV and louder MP3 passed; dedicated Node regression test (quiet WAV, intentional silence, corrupt MP3) passed **1/1**. These tests do **not** establish the loudness of the repository's MP3 assets.
+Sandbox verification: analysis smoke test using synthetic quiet WAV and louder MP3 passed; dedicated Node regression test (quiet WAV and MP3, intentional silence,
+corrupt MP3) passed **1/1**. These tests do **not** establish the loudness of the repository's MP3 assets.
 
 A limited direct PCM measurement of bundled `brown-noise.wav` showed RMS around -12.4 dBFS and sample peak around -1.09 dBFS. This is not a substitute for LUFS/True Peak and does not justify blanket boosting.
 
