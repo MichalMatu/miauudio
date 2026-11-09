@@ -37,6 +37,17 @@ describe('volume safety', () => {
     expect(useSoundStore.getState().sounds['light-rain'].volume).toBe(0);
   });
 
+  it('rejects inherited sound identifiers in externally applied mixes', () => {
+    const invalid = Object.fromEntries([['__proto__', 0.4]]);
+    const result = useSoundStore.getState().override(invalid);
+
+    expect(result.appliedIds).toEqual([]);
+    expect(result.missingIds).toEqual(['__proto__']);
+    expect(Object.getPrototypeOf(useSoundStore.getState().sounds)).toBe(
+      Object.prototype,
+    );
+  });
+
   it('clamps master and alarm values without storing invalid numbers', () => {
     const settings = useSettingsStore.getState();
     settings.setGlobalVolume(0.35);
