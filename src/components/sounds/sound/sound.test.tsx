@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { FileSound } from '@/data/types';
@@ -42,7 +48,7 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe('sound tile volume preference', () => {
-  it('defaults to 50% but preserves a custom level after manual deselection', () => {
+  it('preserves a configured level after deselection', () => {
     const store = useSoundStore.getState();
     expect(store.sounds[rain.id].volume).toBe(0.5);
     store.select(rain.id);
