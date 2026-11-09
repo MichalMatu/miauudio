@@ -48,7 +48,7 @@ describe('volume safety', () => {
     );
   });
 
-  it('ignores invalid dynamic registrations and retains the object prototype', () => {
+  it('ignores invalid registrations and keeps the object prototype', () => {
     const originalCount = Object.keys(useSoundStore.getState().sounds).length;
     useSoundStore.getState().register([
       '__proto__',
