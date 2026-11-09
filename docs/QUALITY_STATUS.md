@@ -53,7 +53,7 @@ stereo generator design, local imports, and stored release-signing evidence.
 | --- | --- | --- |
 | GitHub current main/branch/PR tree, change history | PASS | Connector API, 2026-11-09 |
 | JavaScript scanner syntax | PASS | `node --check` for scanner and fixture test in isolated sandbox |
-| Synthetic scanner fixture: quiet WAV + silence + invalid MP3 | PASS 1/1 | `node --test` in isolated Linux Sandbox, 2026-11-09 |
+| Synthetic scanner fixture: quiet WAV, quiet MP3, silence, invalid MP3 | PASS 1/1 | `node --test` in isolated Linux Sandbox, 2026-11-09 |
 | Full 87-file audio loudness scan (83 MP3, 4 WAV) | NOT RUN | Full audio checkout unavailable; no LUFS results asserted |
 | Formatting/lint via `pnpm check` | NOT RUN | Full checkout and package dependencies unavailable |
 | TypeScript via `pnpm typecheck` | NOT RUN | Full checkout and package dependencies unavailable |
