@@ -34,7 +34,12 @@ interface NavigatorWithAudioSession extends Navigator {
  */
 export function useSound(
   src: string,
-  options: { loop?: boolean; preload?: boolean; volume?: number; onError?: () => void } = {},
+  options: {
+    loop?: boolean;
+    onError?: () => void;
+    preload?: boolean;
+    volume?: number;
+  } = {},
   html5: boolean = false,
 ) {
   const [hasLoaded, setHasLoaded] = useState(false);
