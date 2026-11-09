@@ -40,7 +40,6 @@ export const Sound = forwardRef<HTMLDivElement, SoundProps>(
     const play = useSoundStore(state => state.play);
     const selectSound = useSoundStore(state => state.select);
     const unselectSound = useSoundStore(state => state.unselect);
-    const setVolume = useSoundStore(state => state.setVolume);
     const soundState = useSoundStore(state => state.sounds[id]);
     const isSelected = soundState.isSelected;
     const locked = useSoundStore(state => state.locked);
@@ -76,8 +75,7 @@ export const Sound = forwardRef<HTMLDivElement, SoundProps>(
     const unselect = useCallback(() => {
       if (locked) return;
       unselectSound(id);
-      setVolume(id, 0.5);
-    }, [unselectSound, setVolume, id, locked]);
+    }, [unselectSound, id, locked]);
 
     const toggle = useCallback(() => {
       if (locked) return;
