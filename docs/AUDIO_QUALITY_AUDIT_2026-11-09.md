@@ -22,8 +22,8 @@ The default per-sound volume **0.5 (50%) is intentional**. Do not raise it to 1.
 On a host with FFmpeg and FFprobe installed:
 
 ```sh
-node scripts/audit-audio-levels.mjs public/sounds audio-levels-report.json
-node --test scripts/audit-audio-levels.test.mjs
+pnpm audit:audio
+pnpm test:audio-audit
 ```
 
 The inventory recursively measures bundled MP3/WAV and supported additional formats and records duration, channels, integrated LUFS, True Peak (dBTP), loudness range and suspected quiet recordings. Thresholds of < -28 LUFS and > -14 LUFS are *triage hints*, not global mastering targets. A source flagged as quiet may be intentionally subtle. `silence.wav` is intentionally excluded from quiet-alert classification. No assets are modified.
@@ -31,6 +31,21 @@ The inventory recursively measures bundled MP3/WAV and supported additional form
 Sandbox verification: analysis smoke test using synthetic quiet WAV and louder MP3 passed; dedicated Node regression test (quiet WAV, intentional silence, corrupt MP3) passed **1/1**. These tests do **not** establish the loudness of the repository's MP3 assets.
 
 A limited direct PCM measurement of bundled `brown-noise.wav` showed RMS around -12.4 dBFS and sample peak around -1.09 dBFS. This is not a substitute for LUFS/True Peak and does not justify blanket boosting.
+
+## Additional repository-hardening fixes in this branch
+
+The follow-on general repair sprint also preserves chosen per-layer volume when
+manually deselecting one sound, rejects invalid/non-finite volume writes,
+protects sound lookup/registration against inherited object keys, releases
+Howler effect instances on unmount, and prevents a StrictMode localStorage
+hydrate/write race. Focused Vitest regressions were added for these paths;
+these new tests still require a full checkout to execute.
+
+`pnpm audit:audio` writes to ignored
+`private/audio-audit/audio-levels-report.json`, preventing diagnostic noise
+in Git. `pnpm qa:local` runs the available local Web quality checks without
+GitHub Actions or additional dependencies. See [QUALITY_STATUS.md](QUALITY_STATUS.md)
+and [NEXT_CHAT.md](NEXT_CHAT.md) for exact verification status and resume steps.
 
 ## Remaining release gates
 
