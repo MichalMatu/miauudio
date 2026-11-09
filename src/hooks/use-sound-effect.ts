@@ -36,7 +36,9 @@ export function useSoundEffect(src: string, volume: number = 1) {
   }, [sound, volume]);
 
   useEffect(() => {
-    return () => sound?.unload();
+    return () => {
+      sound?.unload();
+    };
   }, [sound]);
 
   const play = useCallback(() => {
