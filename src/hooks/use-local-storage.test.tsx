@@ -31,7 +31,7 @@ afterEach(() => {
 });
 
 describe('local storage hydration', () => {
-  it('does not temporarily overwrite persisted state in strict mode', async () => {
+  it('preserves persisted state in StrictMode', async () => {
     localStorage.setItem('show-more', 'true');
     const setItem = vi.spyOn(Storage.prototype, 'setItem');
 
@@ -40,7 +40,9 @@ describe('local storage hydration', () => {
         <Probe storageKey="show-more" />
       </StrictMode>,
     );
-    await waitFor(() => expect(screen.getByRole('button').textContent).toBe('true'));
+    await waitFor(() =>
+      expect(screen.getByRole('button').textContent).toBe('true'),
+    );
     expect(setItem).not.toHaveBeenCalledWith('show-more', 'false');
     expect(localStorage.getItem('show-more')).toBe('true');
   });
@@ -51,10 +53,14 @@ describe('local storage hydration', () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem');
 
     const view = render(<Probe storageKey="old-key" />);
-    await waitFor(() => expect(screen.getByRole('button').textContent).toBe('true'));
+    await waitFor(() =>
+      expect(screen.getByRole('button').textContent).toBe('true'),
+    );
 
     view.rerender(<Probe storageKey="new-key" />);
-    await waitFor(() => expect(screen.getByRole('button').textContent).toBe('false'));
+    await waitFor(() =>
+      expect(screen.getByRole('button').textContent).toBe('false'),
+    );
     expect(setItem).not.toHaveBeenCalledWith('new-key', 'true');
   });
 
