@@ -9,12 +9,13 @@ import { test } from 'node:test';
 const script = fileURLToPath(
   new URL('./audit-audio-levels.mjs', import.meta.url),
 );
-const ffmpegAvailable =
-  spawnSync('ffmpeg', ['-version'], { stdio: 'ignore' }).status === 0;
+const audioToolsAvailable = ['ffmpeg', 'ffprobe'].every(
+  binary => spawnSync(binary, ['-version'], { stdio: 'ignore' }).status === 0,
+);
 
 test(
   'detects quiet audio, ignores intentional silence and reports corrupt files',
-  { skip: !ffmpegAvailable },
+  { skip: !audioToolsAvailable },
   async () => {
     const directory = await mkdtemp(
       path.join(os.tmpdir(), 'miauudio-audio-audit-'),
