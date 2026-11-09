@@ -267,7 +267,7 @@ export const useSoundStore = create<SoundStore>()(
 
       setVolume(id, volume) {
         const sounds = get().sounds;
-        if (!sounds[id]) return;
+        if (!sounds[id] || !Number.isFinite(volume)) return;
 
         set({
           sounds: {
