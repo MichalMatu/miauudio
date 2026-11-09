@@ -56,7 +56,7 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe('web audio file playback errors', () => {
-  it('unselects a failed file and pauses the mix when it was the last layer', () => {
+  it('unselects the sole failed layer and pauses the mix', () => {
     render(
       <Playback
         functional
