@@ -34,7 +34,7 @@ interface NavigatorWithAudioSession extends Navigator {
  */
 export function useSound(
   src: string,
-  options: { loop?: boolean; preload?: boolean; volume?: number } = {},
+  options: { loop?: boolean; preload?: boolean; volume?: number; onError?: () => void } = {},
   html5: boolean = false,
 ) {
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -44,6 +44,16 @@ export function useSound(
   const fadeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const targetVolume = useRef(options.volume ?? 0.5);
   const isFadingOut = useRef(false);
+  const onErrorRef = useRef(options.onError);
+  const errorReportedRef = useRef(false);
+  onErrorRef.current = options.onError;
+
+  const reportError = useCallback(() => {
+    setIsLoading(src, false);
+    if (errorReportedRef.current) return;
+    errorReportedRef.current = true;
+    onErrorRef.current?.();
+  }, [setIsLoading, src]);
 
   const { isBrowser } = useSSR();
   const sound = useMemo<Howl | null>(() => {
@@ -56,6 +66,8 @@ export function useSound(
           setIsLoading(src, false);
           setHasLoaded(true);
         },
+        onloaderror: reportError,
+        onplayerror: reportError,
         preload: options.preload ?? false,
         src: src,
       });
@@ -66,7 +78,7 @@ export function useSound(
     }
 
     return sound;
-  }, [src, isBrowser, setIsLoading, html5, options.preload]);
+  }, [src, isBrowser, setIsLoading, html5, options.preload, reportError]);
 
   useEffect(() => {
     if (sound) {
@@ -92,6 +104,9 @@ export function useSound(
   const play = useCallback(
     (cb?: () => void) => {
       if (sound) {
+        if (!sound.playing() && sound.state() !== 'loading') {
+          errorReportedRef.current = false;
+        }
         transitionToken.current += 1;
         isFadingOut.current = false;
         clearFadeTimeout();
